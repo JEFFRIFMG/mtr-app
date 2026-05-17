@@ -20,7 +20,35 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Ubah 12.72% jadi 45% atau 500px biar hijaunya turun sampai ke bawah judul */
+  background: linear-gradient(180deg, #0D3F2D 0%, #000000 45%);
+  background-color: #000000; 
+  background-attachment: fixed; 
+  min-height: 100vh;
+  
+  color: var(--mtr-text);
+  font-family: 'Gantari', Arial, Helvetica, sans-serif;
+}
+
+:root {
+  --mtr-green:        #00A86B;
+  --mtr-green-dk:     #008A57;
+  --mtr-green-glow:   rgba(0, 168, 107, 0.15);
+  --mtr-green-border: rgba(0, 168, 107, 0.4);
+  --mtr-gold:         #F5A623;
+  --mtr-silver:       #A8B2BF;
+  --mtr-bronze:       #CD7F32;
+  --mtr-card:         #0F1825;
+  --mtr-inner:        #0A1220;
+  --mtr-border:       #1A2E45;
+  --mtr-border-lt:    #243548;
+  --mtr-text:         #E8EDF4;
+  --mtr-muted:        #7A8FA6;
+  --mtr-blue-tag:     #7EB8E8;
+  --mtr-blue-bg:      #0D1E33;
+  --mtr-blue-bd:      #1E3A5F;
+  --mtr-red:          #E53E3E;
+  --mtr-amber:        #D69E2E;
+  --mtr-radius:       16px;
+  --mtr-shadow:       0 16px 40px rgba(0, 0, 0, 0.35);
 }

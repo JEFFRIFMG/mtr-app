@@ -9,13 +9,25 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@sanity/client": "^7.22.0",
+    "@sanity/icons": "^3.7.4",
+    "@sanity/ui": "^3.2.0",
+    "@sanity/vision": "^5.25.1",
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.105.4",
     "next": "16.2.6",
+    "next-sanity": "^12.4.5",
+    "papaparse": "^5.5.3",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-select": "^5.10.2",
+    "sanity": "^5.25.1",
+    "styled-components": "^6.4.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

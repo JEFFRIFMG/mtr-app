@@ -1,0 +1,318 @@
+'use client';
+
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import BrokerCard from '../broker/BrokerCard';
+
+interface Props {
+  initialBrokers: any[];
+}
+
+const statusOptions = [
+  { value: 'legitimate', label: 'Retail Brokers' },
+  { value: '', label: 'All (incl. Institutional)' },
+  { value: 'institution', label: 'Institutional Only' },
+];
+
+/* =====================================================
+   CUSTOM SEARCHABLE DROPDOWN (MURNI TAILWIND + INPUT SEARCH)
+   ===================================================== */
+interface CustomDropdownProps {
+  options: { value: string; label: string }[];
+  value: string;
+  onChange: (value: string) => void;
+  id: string;
+  placeholder: string;
+  activeDropdown: string | null;
+  setActiveDropdown: (id: string | null) => void;
+}
+
+function CustomDropdown({ options, value, onChange, id, placeholder, activeDropdown, setActiveDropdown }: CustomDropdownProps) {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const isOpen = activeDropdown === id;
+  const [localSearch, setLocalSearch] = useState('');
+
+  const selectedOption = options.find(opt => opt.value === value) || options[0];
+
+  // Reset teks pencarian lokal di dalam dropdown saat dropdown ditutup
+  useEffect(() => {
+    if (!isOpen) setLocalSearch('');
+  }, [isOpen]);
+
+  // Handle klik di luar area dropdown untuk menutup menu
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        if (isOpen) setActiveDropdown(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen, setActiveDropdown]);
+
+  // Memfilter opsi dropdown berdasarkan apa yang diketik user
+  const filteredOptions = useMemo(() => {
+    return options.filter(opt =>
+      opt.label.toLowerCase().includes(localSearch.toLowerCase())
+    );
+  }, [options, localSearch]);
+
+  return (
+    <div ref={dropdownRef} className="relative flex-1 min-w-[140px] font-['Gantari'] select-none">
+      {/* Tombol Utama Dropdown */}
+      <div
+        onClick={() => setActiveDropdown(isOpen ? null : id)}
+        className={`
+          w-full h-[36px] px-3 rounded-lg bg-[var(--mtr-inner)] border text-[12px] font-medium text-[var(--mtr-text)]
+          flex items-center justify-between cursor-pointer transition-all duration-200
+          ${isOpen ? 'border-[var(--mtr-green)] shadow-[0_0_10px_rgba(0,168,107,0.1)]' : 'border-[var(--mtr-border-lt)] hover:border-[var(--mtr-green)]'}
+        `}
+      >
+        <span className="truncate">{selectedOption.label}</span>
+        <svg 
+          className={`w-2.5 h-2.5 text-[var(--mtr-muted)] transition-transform duration-200 ${isOpen ? 'rotate-180 text-[var(--mtr-green)]' : ''}`} 
+          xmlns="http://www.w3.org/2000/svg" 
+          viewBox="0 0 10 6" 
+          fill="none"
+        >
+          <path d="M0 0l5 6 5-6z" fill="currentColor"/>
+        </svg>
+      </div>
+
+      {/* Menu Kotak Dropdown */}
+      {isOpen && (
+        <div className="absolute left-0 right-0 mt-1.5 bg-[var(--mtr-inner)] border border-[var(--mtr-green)] rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden">
+          
+          {/* Box Input Pencarian di Dalam Dropdown */}
+          <div className="p-2 border-b border-[var(--mtr-border-lt)] bg-[rgba(255,255,255,0.02)]">
+            <input
+              type="text"
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              placeholder={`Search ${placeholder}...`}
+              className="w-full h-7 px-2 bg-[var(--mtr-card)] border border-[var(--mtr-border-lt)] focus:border-[var(--mtr-green)] rounded text-[11px] text-[var(--mtr-text)] outline-none transition-colors"
+              autoFocus
+            />
+          </div>
+
+          {/* List Item Opsi Pilihan */}
+          <div className="max-h-[180px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[var(--mtr-border-lt)] [&::-webkit-scrollbar-thumb]:rounded-md">
+            {filteredOptions.length === 0 ? (
+              <div className="px-3 py-3 text-[11px] text-[var(--mtr-muted)] text-center">No results found</div>
+            ) : (
+              filteredOptions.map((opt) => {
+                const isSelected = opt.value === value;
+                return (
+                  <div
+                    key={opt.value}
+                    onClick={() => {
+                      onChange(opt.value);
+                      setActiveDropdown(null);
+                    }}
+                    className={`
+                      px-3 py-2 text-[12px] cursor-pointer transition-colors duration-150 truncate
+                      ${isSelected 
+                        ? 'bg-[rgba(0,168,107,0.08)] text-[var(--mtr-green)] font-semibold' 
+                        : 'text-[var(--mtr-text)] hover:bg-[rgba(0,168,107,0.15)] hover:text-[var(--mtr-green)]'}
+                    `}
+                  >
+                    {opt.label}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =====================================================
+   MAIN COMPONENT
+   ===================================================== */
+export default function BrokerRankings({ initialBrokers }: Props) {
+  const [search, setSearch] = useState('');
+  const [tier, setTier] = useState('');
+  const [region, setRegion] = useState('');
+  const [status, setStatus] = useState('legitimate');
+  const [sortField, setSortField] = useState('score');
+  const [sortDir, setSortDir] = useState<{ [key: string]: 'asc' | 'desc' }>({  rank: 'asc', score: 'desc', thumbs: 'desc', name: 'asc' });
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  // Generate Opsi Dinamis berdasarkan isi kolom data Supabase
+  const dynamicTiers = useMemo(() => {
+    const uniqueTiers = new Set(initialBrokers.map(b => b.regulation_tier).filter(Boolean));
+    const options = Array.from(uniqueTiers).sort().map(t => ({ value: t, label: t }));
+    return [{ value: '', label: 'All Tiers' }, ...options];
+  }, [initialBrokers]);
+
+  const dynamicRegions = useMemo(() => {
+    const uniqueRegions = new Set(initialBrokers.map(b => b.hq_country).filter(Boolean));
+    const options = Array.from(uniqueRegions).sort().map(r => ({ value: r, label: r }));
+    return [{ value: '', label: 'All Regions' }, ...options];
+  }, [initialBrokers]);
+
+  // Main Filter & Sort Logic
+  const filteredBrokers = useMemo(() => {
+    let result = initialBrokers.filter(b => {
+      const bStatus = b.status || '';
+      const bTier = b.regulation_tier || '';
+      const bCountry = b.hq_country || '';
+      const bName = b.name || '';
+      
+      if (status && bStatus !== status) return false;
+      if (tier && bTier !== tier) return false;
+      if (region && bCountry !== region) return false;
+      if (search && ![bName, b.legal_name, bCountry].join(' ').toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    });
+
+    result.sort((a, b) => {
+      if (sortField === 'score') {
+        const diff = (parseFloat(b.score) || 0) - (parseFloat(a.score) || 0);
+        return sortDir.score === 'desc' ? diff : -diff;
+      }
+      if (sortField === 'name') {
+        const diff = (a.name || '').localeCompare(b.name || '');
+        return sortDir.name === 'asc' ? diff : -diff;
+      }
+      return 0; 
+    });
+
+    return result;
+  }, [initialBrokers, search, tier, region, status, sortField, sortDir]);
+
+  const total = filteredBrokers.length;
+  const totalPages = Math.ceil(total / pageSize);
+  const currentBrokers = filteredBrokers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDir(prev => ({ ...prev, [field]: prev[field] === 'asc' ? 'desc' : 'asc' }));
+    } else {
+      setSortField(field);
+    }
+    setCurrentPage(1);
+  };
+
+  const currentYear = new Date().getFullYear();
+  const currentMonthYear = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const retailCount = initialBrokers.filter(r => (r.status || '') === 'legitimate').length;
+  const uniqueCountries = new Set(initialBrokers.map(r => r.hq_country).filter(Boolean)).size;
+
+  return (
+    <div className="mtr-rankings-wrap">
+      {/* Hero Section */}
+      <div className="mtr-main-hero">
+        <div className="mtr-hero-badge">✦ Updated <span>{currentMonthYear}</span></div>
+        <h1>Global Broker Rankings <span>{currentYear}</span></h1>
+        <p>Independent rankings of 590+ regulated brokers worldwide. Compare regulation, spreads, platforms and fees. No paid placements.</p>
+        <div className="mtr-hero-stats">
+          <div className="mtr-hero-stat">
+            <span className="mtr-hero-stat-num"><b>{retailCount}</b></span>
+            <span className="mtr-hero-stat-label">Retail Brokers</span>
+          </div>
+          <div className="mtr-hero-stat">
+            <span className="mtr-hero-stat-num"><b>{uniqueCountries}</b>+</span>
+            <span className="mtr-hero-stat-label">Countries</span>
+          </div>
+          <div className="mtr-hero-stat">
+            <span className="mtr-hero-stat-num"><b>100</b>%</span>
+            <span className="mtr-hero-stat-label">Independent</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters Area */}
+      <div className="mtr-filters-wrap">
+        <div className="mtr-filters">
+          
+          {/* Main Search Bar */}
+          <div className="mtr-search-wrap">
+            <svg className="mtr-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M9.5 9.5l2.8 2.8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <input type="text" placeholder="Search broker name, regulator…" value={search} onChange={e => {setSearch(e.target.value); setCurrentPage(1);}} />
+          </div>
+          
+          {/* Searchable Custom Dropdown: Tiers */}
+          <CustomDropdown 
+            id="tier"
+            placeholder="tier"
+            options={dynamicTiers}
+            value={tier}
+            onChange={(val) => { setTier(val); setCurrentPage(1); }}
+            activeDropdown={activeDropdown}
+            setActiveDropdown={setActiveDropdown}
+          />
+          
+          {/* Searchable Custom Dropdown: Regions */}
+          <CustomDropdown 
+            id="region"
+            placeholder="region"
+            options={dynamicRegions}
+            value={region}
+            onChange={(val) => { setRegion(val); setCurrentPage(1); }}
+            activeDropdown={activeDropdown}
+            setActiveDropdown={setActiveDropdown}
+          />
+          
+          {/* Custom Dropdown: Status */}
+          <CustomDropdown 
+            id="status"
+            placeholder="status"
+            options={statusOptions}
+            value={status}
+            onChange={(val) => { setStatus(val); setCurrentPage(1); }}
+            activeDropdown={activeDropdown}
+            setActiveDropdown={setActiveDropdown}
+          />
+
+          <div className="mtr-sort-group">
+            <button className={`mtr-sort-btn ${sortField === 'score' ? 'active' : ''}`} onClick={() => handleSort('score')}>★ Score</button>
+            <button className={`mtr-sort-btn ${sortField === 'thumbs' ? 'active' : ''}`} onClick={() => handleSort('thumbs')}>👍 Popular</button>
+            <button className={`mtr-sort-btn ${sortField === 'name' ? 'active' : ''}`} onClick={() => handleSort('name')}>A–Z</button>
+          </div>
+          <div className="mtr-count-label">{total} broker{total !== 1 ? 's' : ''}</div>
+        </div>
+      </div>
+
+      {/* List Container */}
+      <div className="mtr-rankings-list">
+        {total === 0 ? (
+          <div className="mtr-empty">No brokers match your filters.</div>
+        ) : (
+          currentBrokers.map((broker, idx) => (
+            <BrokerCard key={broker.uuid || idx} broker={broker} rank={(currentPage - 1) * pageSize + idx + 1} idx={idx} />
+          ))
+        )}
+      </div>
+
+      {/* Pagination Container */}
+      {total > 0 && (
+        <div className="mtr-pagination-wrap">
+          <div className="mtr-pagination-info">
+            <span className="mtr-info-desktop">Showing <b>{(currentPage - 1) * pageSize + 1}</b> to <b>{Math.min(currentPage * pageSize, total)}</b> of <b>{total}</b> brokers</span>
+          </div>
+          <div className="mtr-pagination-pages">
+            <button className="mtr-pg-btn mtr-pg-prev" disabled={currentPage === 1} onClick={() => {setCurrentPage(p => p - 1); window.scrollTo({top: 200, behavior: 'smooth'});}}>&#8249;</button>
+            <span className="mtr-pg-ellipsis">Page {currentPage} of {totalPages}</span>
+            <button className="mtr-pg-btn mtr-pg-next" disabled={currentPage === totalPages} onClick={() => {setCurrentPage(p => p + 1); window.scrollTo({top: 200, behavior: 'smooth'});}}>&#8250;</button>
+          </div>
+          <div className="mtr-per-page-wrap">
+            <span className="mtr-per-page-label">Show per page</span>
+            <select className="mtr-per-page-select" value={pageSize} onChange={e => {setPageSize(Number(e.target.value)); setCurrentPage(1);}}>
+              <option value="10">10</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
