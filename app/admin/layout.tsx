@@ -41,6 +41,7 @@ export default async function AdminLayout({
         {session.role === 'owner' && (
           <NavLink href="/admin/brokers/import">Import CSV</NavLink>
         )}
+        <NavLink href="/admin/boost">Vote Boost</NavLink>
 
         <div className="mt-auto pt-6 border-t" style={{ borderColor: '#1A2E45' }}>
           <form action="/api/admin/auth" method="POST">

@@ -53,6 +53,10 @@ export interface Broker {
   offer_note?: string | null;
   offer_url?: string | null;
   offer_label?: string | null;
+  // Vote system (Phase 4)
+  real_votes?: number | null;
+  boost_total?: number | null;
+  total_votes?: number | null;
   is_published?: boolean | null;
   deleted_at?: string | null;
   created_at?: string;

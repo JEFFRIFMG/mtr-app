@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import BrokerCard from '../broker/BrokerCard';
+import { useVoteRealtime } from '@/lib/vote/useVoteRealtime';
 
 interface Props {
   initialBrokers: any[];
@@ -33,12 +34,10 @@ function CustomDropdown({ options, value, onChange, id, placeholder, activeDropd
 
   const selectedOption = options.find(opt => opt.value === value) || options[0];
 
-  // Reset teks pencarian lokal di dalam dropdown saat dropdown ditutup
   useEffect(() => {
     if (!isOpen) setLocalSearch('');
   }, [isOpen]);
 
-  // Handle klik di luar area dropdown untuk menutup menu
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -49,7 +48,6 @@ function CustomDropdown({ options, value, onChange, id, placeholder, activeDropd
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen, setActiveDropdown]);
 
-  // Memfilter opsi dropdown berdasarkan apa yang diketik user
   const filteredOptions = useMemo(() => {
     return options.filter(opt =>
       opt.label.toLowerCase().includes(localSearch.toLowerCase())
@@ -58,7 +56,6 @@ function CustomDropdown({ options, value, onChange, id, placeholder, activeDropd
 
   return (
     <div ref={dropdownRef} className="relative flex-1 min-w-[140px] font-['Gantari'] select-none">
-      {/* Tombol Utama Dropdown */}
       <div
         onClick={() => setActiveDropdown(isOpen ? null : id)}
         className={`
@@ -78,11 +75,8 @@ function CustomDropdown({ options, value, onChange, id, placeholder, activeDropd
         </svg>
       </div>
 
-      {/* Menu Kotak Dropdown */}
       {isOpen && (
         <div className="absolute left-0 right-0 mt-1.5 bg-[var(--mtr-inner)] border border-[var(--mtr-green)] rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden">
-          
-          {/* Box Input Pencarian di Dalam Dropdown */}
           <div className="p-2 border-b border-[var(--mtr-border-lt)] bg-[rgba(255,255,255,0.02)]">
             <input
               type="text"
@@ -94,7 +88,6 @@ function CustomDropdown({ options, value, onChange, id, placeholder, activeDropd
             />
           </div>
 
-          {/* List Item Opsi Pilihan */}
           <div className="max-h-[180px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[var(--mtr-border-lt)] [&::-webkit-scrollbar-thumb]:rounded-md">
             {filteredOptions.length === 0 ? (
               <div className="px-3 py-3 text-[11px] text-[var(--mtr-muted)] text-center">No results found</div>
@@ -136,11 +129,20 @@ export default function BrokerRankings({ initialBrokers }: Props) {
   const [region, setRegion] = useState('');
   const [status, setStatus] = useState('legitimate');
   const [sortField, setSortField] = useState('score');
-  const [sortDir, setSortDir] = useState<{ [key: string]: 'asc' | 'desc' }>({  rank: 'asc', score: 'desc', thumbs: 'desc', name: 'asc' });
+  const [sortDir, setSortDir] = useState<{ [key: string]: 'asc' | 'desc' }>({ rank: 'asc', score: 'desc', popular: 'desc', name: 'asc' });
   
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  // Live vote counts dari Realtime: { brokerUuid: totalVotes }
+  const [liveVotes, setLiveVotes] = useState<Record<string, number>>({});
+
+  // Subscribe Realtime — broadcast cuma row yang berubah
+  const handleVoteUpdate = useCallback((uuid: string, totalVotes: number) => {
+    setLiveVotes(prev => ({ ...prev, [uuid]: totalVotes }));
+  }, []);
+  useVoteRealtime(handleVoteUpdate);
 
   // Generate Opsi Dinamis berdasarkan isi kolom data Supabase
   const dynamicTiers = useMemo(() => {
@@ -154,6 +156,12 @@ export default function BrokerRankings({ initialBrokers }: Props) {
     const options = Array.from(uniqueRegions).sort().map(r => ({ value: r, label: r }));
     return [{ value: '', label: 'All Regions' }, ...options];
   }, [initialBrokers]);
+
+  // Helper: ambil current vote count (live override SSR initial)
+  const getVoteCount = useCallback((broker: any): number => {
+    if (liveVotes[broker.uuid] !== undefined) return liveVotes[broker.uuid];
+    return broker.total_votes ?? 0;
+  }, [liveVotes]);
 
   // Main Filter & Sort Logic
   const filteredBrokers = useMemo(() => {
@@ -175,6 +183,10 @@ export default function BrokerRankings({ initialBrokers }: Props) {
         const diff = (parseFloat(b.score) || 0) - (parseFloat(a.score) || 0);
         return sortDir.score === 'desc' ? diff : -diff;
       }
+      if (sortField === 'popular') {
+        const diff = getVoteCount(b) - getVoteCount(a);
+        return sortDir.popular === 'desc' ? diff : -diff;
+      }
       if (sortField === 'name') {
         const diff = (a.name || '').localeCompare(b.name || '');
         return sortDir.name === 'asc' ? diff : -diff;
@@ -183,7 +195,7 @@ export default function BrokerRankings({ initialBrokers }: Props) {
     });
 
     return result;
-  }, [initialBrokers, search, tier, region, status, sortField, sortDir]);
+  }, [initialBrokers, search, tier, region, status, sortField, sortDir, getVoteCount]);
 
   const total = filteredBrokers.length;
   const totalPages = Math.ceil(total / pageSize);
@@ -239,7 +251,6 @@ export default function BrokerRankings({ initialBrokers }: Props) {
             <input type="text" placeholder="Search broker name, regulator…" value={search} onChange={e => {setSearch(e.target.value); setCurrentPage(1);}} />
           </div>
           
-          {/* Searchable Custom Dropdown: Tiers */}
           <CustomDropdown 
             id="tier"
             placeholder="tier"
@@ -250,7 +261,6 @@ export default function BrokerRankings({ initialBrokers }: Props) {
             setActiveDropdown={setActiveDropdown}
           />
           
-          {/* Searchable Custom Dropdown: Regions */}
           <CustomDropdown 
             id="region"
             placeholder="region"
@@ -261,7 +271,6 @@ export default function BrokerRankings({ initialBrokers }: Props) {
             setActiveDropdown={setActiveDropdown}
           />
           
-          {/* Custom Dropdown: Status */}
           <CustomDropdown 
             id="status"
             placeholder="status"
@@ -274,7 +283,7 @@ export default function BrokerRankings({ initialBrokers }: Props) {
 
           <div className="mtr-sort-group">
             <button className={`mtr-sort-btn ${sortField === 'score' ? 'active' : ''}`} onClick={() => handleSort('score')}>★ Score</button>
-            <button className={`mtr-sort-btn ${sortField === 'thumbs' ? 'active' : ''}`} onClick={() => handleSort('thumbs')}>👍 Popular</button>
+            <button className={`mtr-sort-btn ${sortField === 'popular' ? 'active' : ''}`} onClick={() => handleSort('popular')}>👍 Popular</button>
             <button className={`mtr-sort-btn ${sortField === 'name' ? 'active' : ''}`} onClick={() => handleSort('name')}>A–Z</button>
           </div>
           <div className="mtr-count-label">{total} broker{total !== 1 ? 's' : ''}</div>
@@ -287,7 +296,13 @@ export default function BrokerRankings({ initialBrokers }: Props) {
           <div className="mtr-empty">No brokers match your filters.</div>
         ) : (
           currentBrokers.map((broker, idx) => (
-            <BrokerCard key={broker.uuid || idx} broker={broker} rank={(currentPage - 1) * pageSize + idx + 1} idx={idx} />
+            <BrokerCard 
+              key={broker.uuid || idx} 
+              broker={broker} 
+              rank={(currentPage - 1) * pageSize + idx + 1} 
+              idx={idx}
+              liveCount={liveVotes[broker.uuid]}
+            />
           ))
         )}
       </div>

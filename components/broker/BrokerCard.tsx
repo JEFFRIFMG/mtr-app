@@ -1,16 +1,22 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { hasVoted as checkHasVoted, submitVote } from '@/lib/vote/useVoteRealtime';
 
 interface BrokerCardProps {
   broker: any;
   rank: number;
   idx: number;
+  /** Live count override dari parent (Realtime subscription) */
+  liveCount?: number;
 }
 
 const MTR_COLORS = ['#00A86B','#0066FF','#7B2FBE','#E53E3E','#D69E2E','#0BC5EA','#F6AD55','#68D391','#F687B3','#76E4F7'];
 
-export default function BrokerCard({ broker, rank, idx }: BrokerCardProps) {
-  const [votes, setVotes] = useState<number>(0);
+export default function BrokerCard({ broker, rank, idx, liveCount }: BrokerCardProps) {
+  // Initial count dari Supabase (total_votes = real_votes + boost_total)
+  const [votes, setVotes] = useState<number>(broker.total_votes ?? 0);
   const [hasVoted, setHasVoted] = useState(false);
   const [isVoting, setIsVoting] = useState(false);
 
@@ -18,42 +24,36 @@ export default function BrokerCard({ broker, rank, idx }: BrokerCardProps) {
   const score = parseFloat(broker.score) || 0;
   const color = (broker.color && broker.color !== '--') ? broker.color : MTR_COLORS[idx % MTR_COLORS.length];
   const brokerName = broker.name || broker.legal_name || 'Unknown';
-  // Gunakan slug dari Supabase sebagai ID utama
-  const cardId = broker.slug || brokerName.toString().toLowerCase().trim().replace(/\s+/g, '_');
 
+  // Cek apakah voter ini udah pernah vote broker ini (localStorage)
   useEffect(() => {
-    // Load vote stat dari localStorage (sementara tetep pakai logic lama)
-    const storedVotes = JSON.parse(localStorage.getItem('mtr_votes') || '{}');
-    if (storedVotes[cardId]) setHasVoted(true);
-    
-    // Fetch vote count real dari server API (bisa diarahkan ke Supabase nanti)
-    fetch(`https://script.google.com/macros/s/AKfycbwc7a3fsjw2EeGnneRZUH1eZeExSsk386diLkjHLwI5nxQjv9Ajb0xKROGvwOIz0mIhLw/exec?action=counts`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.counts && data.counts[cardId]) {
-          setVotes(data.counts[cardId]);
-        }
-      }).catch(() => {});
-  }, [cardId]);
+    if (broker.uuid) {
+      setHasVoted(checkHasVoted(broker.uuid));
+    }
+  }, [broker.uuid]);
+
+  // Sync liveCount dari parent (Realtime subscription di BrokerRankings)
+  useEffect(() => {
+    if (typeof liveCount === 'number') {
+      setVotes(liveCount);
+    }
+  }, [liveCount]);
 
   const handleVote = async () => {
-    if (hasVoted || isVoting) return;
+    if (hasVoted || isVoting || !broker.uuid) return;
     setIsVoting(true);
-    try {
-      const res = await fetch(`https://script.google.com/macros/s/AKfycbwc7a3fsjw2EeGnneRZUH1eZeExSsk386diLkjHLwI5nxQjv9Ajb0xKROGvwOIz0mIhLw/exec?action=vote&id=${encodeURIComponent(cardId)}`);
-      const data = await res.json();
-      if (data.success) {
-        setVotes(data.count);
-        setHasVoted(true);
-        const currentStored = JSON.parse(localStorage.getItem('mtr_votes') || '{}');
-        currentStored[cardId] = 1;
-        localStorage.setItem('mtr_votes', JSON.stringify(currentStored));
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsVoting(false);
+
+    // Optimistic update
+    setVotes(v => v + 1);
+    setHasVoted(true);
+
+    const ok = await submitVote(broker.uuid);
+    if (!ok) {
+      // Rollback kalau gagal
+      setVotes(v => v - 1);
+      setHasVoted(false);
     }
+    setIsVoting(false);
   };
 
   // Helpers formatting
@@ -154,7 +154,7 @@ export default function BrokerCard({ broker, rank, idx }: BrokerCardProps) {
           Visit Broker
           <svg style={{ marginLeft: '4px' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
         </a>
-        <button className={`mtr-thumb-btn ${hasVoted ? 'voted' : ''}`} disabled={isVoting} onClick={handleVote}>
+        <button className={`mtr-thumb-btn ${hasVoted ? 'voted' : ''}`} disabled={isVoting || hasVoted} onClick={handleVote}>
           <svg width="11" height="11" viewBox="0 0 24 24" fill={hasVoted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
             <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
