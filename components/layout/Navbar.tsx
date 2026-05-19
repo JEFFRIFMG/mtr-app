@@ -16,7 +16,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className={`sticky top-0 z-50 w-full transition-all duration-300 ${isScrolled ? 'mt-2' : 'mt-[32px]'}`}>
+    <header className="sticky top-[32px] z-50 w-full transition-all duration-300 mt-[32px]">
       <div className="max-w-[1140px] mx-auto px-4">
         <div className={`
           flex items-center justify-between px-[16px] py-[24px] rounded-[20px]

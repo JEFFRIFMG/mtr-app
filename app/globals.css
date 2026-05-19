@@ -23,7 +23,7 @@ body {
   /* Ubah 12.72% jadi 45% atau 500px biar hijaunya turun sampai ke bawah judul */
   background: linear-gradient(180deg, #0D3F2D 0%, #000000 80%);
   background-color: #000000; 
-  background-attachment: fixed; 
+  background-repeat: no-repeat;
   min-height: 100vh;
   
   color: var(--mtr-text);
