@@ -132,7 +132,7 @@ export default function BrokerRankings({ initialBrokers }: Props) {
   const [sortDir, setSortDir] = useState<{ [key: string]: 'asc' | 'desc' }>({ rank: 'asc', score: 'desc', popular: 'desc', name: 'asc' });
   
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(20);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   // Live vote counts dari Realtime: { brokerUuid: totalVotes }
@@ -321,9 +321,10 @@ export default function BrokerRankings({ initialBrokers }: Props) {
           <div className="mtr-per-page-wrap">
             <span className="mtr-per-page-label">Show per page</span>
             <select className="mtr-per-page-select" value={pageSize} onChange={e => {setPageSize(Number(e.target.value)); setCurrentPage(1);}}>
-              <option value="10">10</option>
+              <option value="20">20</option>
               <option value="50">50</option>
               <option value="100">100</option>
+              <option value="500">500</option>
             </select>
           </div>
         </div>
