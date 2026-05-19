@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@sanity/client": "^7.22.0",
     "@sanity/icons": "^3.7.4",
     "@sanity/ui": "^3.2.0",
