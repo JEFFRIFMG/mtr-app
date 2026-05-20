@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { hasVoted as checkHasVoted, submitVote } from '@/lib/vote/useVoteRealtime';
 import { Tooltip } from '@/components/ui/Tooltip';
@@ -17,10 +17,10 @@ const MTR_COLORS = ['#00A86B','#0066FF','#7B2FBE','#E53E3E','#D69E2E','#0BC5EA',
 
 /**
  * Format vote count gaya IG / YouTube:
- *   999     → "999"
- *   1605    → "1.6K"
- *   12500   → "12K"
- *   1200000 → "1.2M"
+ * 999     → "999"
+ * 1605    → "1.6K"
+ * 12500   → "12K"
+ * 1200000 → "1.2M"
  */
 const formatVotes = (n: number): string => {
   if (n < 1000) return n.toString();
@@ -111,6 +111,14 @@ export default function BrokerCard({ broker, rank, idx, liveCount }: BrokerCardP
   // Tooltip text — full number dengan thousand separator (IG-style)
   const voteTooltip = `${votes.toLocaleString()} ${votes === 1 ? 'recommendation' : 'recommendations'}`;
 
+  // Logika Normalisasi Data Regulasi (Auto-Split Pipe '|' menjadi pills terpisah)
+  const parsedRegulations = useMemo(() => {
+    if (!broker.regulation || !Array.isArray(broker.regulation)) return [];
+    return broker.regulation
+      .flatMap((reg: string) => reg.split('|').map((item) => item.trim()))
+      .filter(Boolean);
+  }, [broker.regulation]);
+
   return (
     <div className={`mtr-card ${isInst ? 'mtr-inst' : ''}`} style={{ animationDelay: `${Math.min(rank * 0.018, 0.28)}s` }}>
       <div 
@@ -153,8 +161,10 @@ export default function BrokerCard({ broker, rank, idx, liveCount }: BrokerCardP
         <div className="mtr-dbox mtr-dbox-reg">
           <div className="mtr-dbox-label">Regulation</div>
           <div className="mtr-lic-tags">
-            {(broker.regulation || []).slice(0, 3).map((l: string, i: number) => <span key={i} className="mtr-lic-tag">{l}</span>)}
-            {(!broker.regulation || broker.regulation.length === 0) && <span className="mtr-dbox-value muted">—</span>}
+            {parsedRegulations.slice(0, 3).map((l: string, i: number) => (
+              <span key={i} className="mtr-lic-tag">{l}</span>
+            ))}
+            {parsedRegulations.length === 0 && <span className="mtr-dbox-value muted">—</span>}
           </div>
         </div>
         <div className="mtr-dbox">
