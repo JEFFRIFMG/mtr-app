@@ -111,7 +111,7 @@ export default function BrokerCard({ broker, rank, idx, liveCount }: BrokerCardP
   // Tooltip text — full number dengan thousand separator (IG-style)
   const voteTooltip = `${votes.toLocaleString()} ${votes === 1 ? 'recommendation' : 'recommendations'}`;
 
-  // Logika Normalisasi Data Regulasi (Auto-Split Pipe '|' menjadi pills terpisah)
+  // Logika Normalisasi Data Regulasi (Auto-Split Pipe '|')
   const parsedRegulations = useMemo(() => {
     if (!broker.regulation || !Array.isArray(broker.regulation)) return [];
     return broker.regulation
@@ -161,9 +161,18 @@ export default function BrokerCard({ broker, rank, idx, liveCount }: BrokerCardP
         <div className="mtr-dbox mtr-dbox-reg">
           <div className="mtr-dbox-label">Regulation</div>
           <div className="mtr-lic-tags">
-            {parsedRegulations.slice(0, 3).map((l: string, i: number) => (
+            {/* Tampilkan Maksimal 2 Pills Utama */}
+            {parsedRegulations.slice(0, 2).map((l: string, i: number) => (
               <span key={i} className="mtr-lic-tag">{l}</span>
             ))}
+            
+            {/* Render Counter Badge Berbasis Flexbox Jika Jumlah Data Lebih Dari 2 */}
+            {parsedRegulations.length > 2 && (
+              <span className="mtr-lic-tag" style={{ opacity: 0.65, fontWeight: 700 }}>
+                +{parsedRegulations.length - 2}
+              </span>
+            )}
+            
             {parsedRegulations.length === 0 && <span className="mtr-dbox-value muted">—</span>}
           </div>
         </div>
