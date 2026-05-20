@@ -40,7 +40,7 @@ export default async function BrokerDetailPage({ params }: Props) {
     <div className="py-8">
       <BrokerDetailCard broker={broker} />
 
-      <div className="mt-12 max-w-[1240px] mx-auto">
+      <div className="mt-12 max-w-310 mx-auto">
         {review && review.content ? (
           <article className="prose prose-invert max-w-none text-gray-300 bg-[#101010] p-6 md:p-10 rounded-lg border border-[rgba(255,255,255,0.22)]">
             <h2 className="text-2xl font-bold text-white mb-6 border-b border-[rgba(255,255,255,0.1)] pb-4">
