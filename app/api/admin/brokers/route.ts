@@ -2,6 +2,26 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/shared/supabase/server';
 import { requireAdmin } from '@/lib/admin/auth';
 
+// Fields yang TIDAK boleh di-set manual saat create (generated/computed/auto-managed)
+const READONLY_FIELDS = [
+  'total_votes',    // GENERATED column
+  'real_votes',     // trigger-managed
+  'boost_total',    // trigger-managed
+  'created_at',
+  'updated_at',
+  'uuid',
+];
+
+function stripReadonly(body: Record<string, any>): Record<string, any> {
+  const clean: Record<string, any> = {};
+  for (const key of Object.keys(body)) {
+    if (!READONLY_FIELDS.includes(key)) {
+      clean[key] = body[key];
+    }
+  }
+  return clean;
+}
+
 function slugify(str: string): string {
   return String(str || '')
     .toLowerCase()
@@ -46,7 +66,7 @@ export async function POST(req: Request) {
   }
 
   const payload = {
-    ...body,
+    ...stripReadonly(body),
     slug,
     domain: extractDomain(body.website),
   };

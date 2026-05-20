@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Broker } from '@/types/broker';
 
@@ -10,6 +10,14 @@ export function BrokerForm({ broker, mode }: { broker?: Broker; mode: Mode }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Track logo URL awal saat form mount.
+  // Kalau user upload baru tapi ga save, file baru itu = "dirty orphan" yang harus di-cleanup.
+  const initialLogoUrl = broker?.logo_url ?? null;
+  const [pendingDirtyLogos, setPendingDirtyLogos] = useState<string[]>([]);
 
   const [form, setForm] = useState<Partial<Broker>>(
     broker || {
@@ -26,6 +34,7 @@ export function BrokerForm({ broker, mode }: { broker?: Broker; mode: Mode }) {
       max_leverage: null,
       description: null,
       quick_verdict: null,
+      logo_url: null,
       is_published: true,
       status: 'legitimate',
     }
@@ -38,6 +47,133 @@ export function BrokerForm({ broker, mode }: { broker?: Broker; mode: Mode }) {
   function setArrayField(key: keyof Broker, raw: string, sep: string = ',') {
     const arr = raw.split(sep).map((s) => s.trim()).filter(Boolean);
     setForm((f) => ({ ...f, [key]: arr.length ? arr : null }));
+  }
+
+  // ============================================================
+  // ORPHAN CLEANUP STRATEGY (3 layers)
+  // ============================================================
+  // Saat user upload logo baru tapi belum klik Save Changes,
+  // file ada di storage tapi `brokers.logo_url` di DB belum di-update.
+  //   Layer 1. Cancel button → confirm dialog → DELETE orphans
+  //   Layer 2. beforeunload (close tab/refresh) → native prompt + sendBeacon best-effort
+  //   Layer 3. Save success → orphan list dibersihkan (file BUKAN orphan lagi)
+  // ============================================================
+
+  // Layer 2: warn user kalau leaving dengan upload yang belum saved
+  useEffect(() => {
+    if (pendingDirtyLogos.length === 0) return;
+
+    const handler = (e: BeforeUnloadEvent) => {
+      // Best-effort cleanup via sendBeacon (success rate ~90%, ga guarantee)
+      for (const url of pendingDirtyLogos) {
+        const blob = new Blob([JSON.stringify({ url })], { type: 'application/json' });
+        navigator.sendBeacon('/api/admin/brokers/upload-logo/beacon-delete', blob);
+      }
+      // Native browser prompt
+      e.preventDefault();
+      e.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [pendingDirtyLogos]);
+
+  async function deleteOrphans(urls: string[]): Promise<void> {
+    await Promise.all(
+      urls.map((url) =>
+        fetch('/api/admin/brokers/upload-logo', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        }).catch(() => {})
+      )
+    );
+  }
+
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setLogoError(null);
+    setLogoUploading(true);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    // Penting: pass URL upload TERAKHIR (yang juga dirty), bukan logo_url awal,
+    // biar file orphan sebelumnya juga dihapus oleh server.
+    if (form.logo_url && form.logo_url !== initialLogoUrl) {
+      formData.append('old_url', form.logo_url);
+    }
+
+    const res = await fetch('/api/admin/brokers/upload-logo', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      setLogoError(err.error || 'Upload gagal');
+      setLogoUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    const { url } = await res.json();
+    setField('logo_url', url);
+    // Tandai URL baru sebagai dirty (belum disimpen ke DB).
+    // Sekaligus drop URL dirty lama (yang udah di-delete server) dari list.
+    setPendingDirtyLogos((prev) => {
+      const filtered = prev.filter((u) => u !== form.logo_url);
+      return [...filtered, url];
+    });
+    setLogoUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  async function handleLogoRemove() {
+    if (!form.logo_url) return;
+    setLogoError(null);
+    setLogoUploading(true);
+
+    const currentUrl = form.logo_url;
+    const isDirty = pendingDirtyLogos.includes(currentUrl);
+
+    if (isDirty) {
+      // File belum tersave, langsung hapus dari storage
+      const res = await fetch('/api/admin/brokers/upload-logo', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: currentUrl }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        setLogoError(err.error || 'Hapus gagal');
+        setLogoUploading(false);
+        return;
+      }
+      setPendingDirtyLogos((prev) => prev.filter((u) => u !== currentUrl));
+    }
+    // Kalau bukan dirty (logo awal yang udah saved), TIDAK hapus dari storage di sini.
+    // User harus klik Save Changes biar `logo_url=null` ke-commit ke DB.
+    // → Safe: kalau user batal pakai Cancel, logo lama tetep utuh di DB & storage.
+
+    setField('logo_url', null);
+    setLogoUploading(false);
+  }
+
+  async function handleCancel() {
+    // Layer 1: kalau ada upload yang belum di-save → konfirmasi
+    if (pendingDirtyLogos.length > 0) {
+      const ok = window.confirm(
+        `Ada ${pendingDirtyLogos.length} logo yang udah ke-upload tapi belum di-save.\n\n` +
+          `Klik OK untuk hapus dari storage dan keluar.\n` +
+          `Klik Cancel untuk tetap di form.`
+      );
+      if (!ok) return;
+      await deleteOrphans(pendingDirtyLogos);
+      setPendingDirtyLogos([]);
+    }
+    router.back();
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -61,9 +197,20 @@ export function BrokerForm({ broker, mode }: { broker?: Broker; mode: Mode }) {
       return;
     }
 
+    // Save sukses:
+    //   - Logo BARU yang tersimpan di form.logo_url BUKAN orphan lagi
+    //   - Logo LAMA (initialLogoUrl) yang sekarang ga dipake → udah ke-delete oleh API upload (logic existing)
+    //   - Kalau user remove logo (form.logo_url = null) tapi awalnya ada → delete file lama dari storage sekarang
+    if (mode === 'edit' && initialLogoUrl && !form.logo_url) {
+      await deleteOrphans([initialLogoUrl]);
+    }
+
+    setPendingDirtyLogos([]);
     router.push('/admin/brokers');
     router.refresh();
   }
+
+  const hasUnsavedLogo = pendingDirtyLogos.length > 0;
 
   return (
     <form onSubmit={handleSubmit} className="max-w-3xl">
@@ -111,6 +258,90 @@ export function BrokerForm({ broker, mode }: { broker?: Broker; mode: Mode }) {
           />
         </Field>
       </Section>
+
+      {/* Logo upload — OPTIONAL */}
+      <div
+        className="mb-6 p-4 rounded-xl"
+        style={{ background: '#0F1825', border: '1px solid #1A2E45' }}
+      >
+        <h3 className="text-sm font-semibold mb-3" style={{ color: '#00A86B' }}>
+          Logo <span style={{ color: '#7A8FA6', fontWeight: 400 }}>(optional)</span>
+        </h3>
+        <div className="flex items-center gap-4">
+          {/* Preview */}
+          <div
+            className="flex items-center justify-center overflow-hidden"
+            style={{
+              width: 80,
+              height: 80,
+              background: '#0A1220',
+              border: '1px solid #1A2E45',
+              borderRadius: 16,
+            }}
+          >
+            {form.logo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={form.logo_url}
+                alt="Logo preview"
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              />
+            ) : (
+              <span style={{ color: '#7A8FA6', fontSize: 11 }}>No logo</span>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex-1">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
+              onChange={handleLogoUpload}
+              disabled={logoUploading}
+              style={{ display: 'none' }}
+              id="logo-file-input"
+            />
+            <div className="flex gap-2 flex-wrap">
+              <label
+                htmlFor="logo-file-input"
+                className="px-3 py-2 rounded text-sm font-medium cursor-pointer"
+                style={{
+                  background: logoUploading ? '#1A2E45' : '#00A86B',
+                  color: '#fff',
+                  opacity: logoUploading ? 0.6 : 1,
+                  pointerEvents: logoUploading ? 'none' : 'auto',
+                }}
+              >
+                {logoUploading ? 'Uploading...' : form.logo_url ? 'Replace' : 'Choose file'}
+              </label>
+              {form.logo_url && !logoUploading && (
+                <button
+                  type="button"
+                  onClick={handleLogoRemove}
+                  className="px-3 py-2 rounded text-sm"
+                  style={{ background: 'transparent', color: '#E53E3E', border: '1px solid #E53E3E' }}
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+            <p className="text-xs mt-2" style={{ color: '#7A8FA6' }}>
+              PNG, JPG, WEBP, atau SVG. Max 2MB. Kalau kosong, otomatis pake Clearbit/favicon.
+            </p>
+            {hasUnsavedLogo && (
+              <p className="text-xs mt-1" style={{ color: '#D69E2E' }}>
+                ⚠ Logo belum tersimpan. Klik &quot;Save Changes&quot; untuk simpan.
+              </p>
+            )}
+            {logoError && (
+              <p className="text-xs mt-1" style={{ color: '#E53E3E' }}>
+                {logoError}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
 
       <Section title="Ranking & Score">
         <Field label="Rank">
@@ -286,7 +517,7 @@ export function BrokerForm({ broker, mode }: { broker?: Broker; mode: Mode }) {
         </button>
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={handleCancel}
           className="px-4 py-2 rounded"
           style={{ background: '#1A2E45', color: '#E8EDF4' }}
         >

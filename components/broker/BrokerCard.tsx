@@ -93,6 +93,21 @@ export default function BrokerCard({ broker, rank, idx, liveCount }: BrokerCardP
     }
   } catch(e) {}
 
+  // Logo fallback chain (priority):
+  //   1. broker.logo_url (custom dari tim design)
+  //   2. Clearbit Logo API
+  //   3. Google Favicon (via onerror)
+  //   4. Circle initial (kalau ga ada domain sama sekali)
+  const customLogo = broker.logo_url || null;
+  const fallbackChain = customLogo
+    ? customLogo
+    : domain
+      ? `https://logo.clearbit.com/${domain}`
+      : null;
+  const onErrorFallback = domain
+    ? `this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=${domain}&sz=128';`
+    : `this.onerror=null;this.style.display='none';`;
+
   // Tooltip text — full number dengan thousand separator (IG-style)
   const voteTooltip = `${votes.toLocaleString()} ${votes === 1 ? 'recommendation' : 'recommendations'}`;
 
@@ -108,12 +123,12 @@ export default function BrokerCard({ broker, rank, idx, liveCount }: BrokerCardP
         }}
       ></div>
       <div className="mtr-rank-col"><span className={`mtr-rank-num ${rankCls}`}>{isInst ? '—' : rank}</span></div>
-      {domain ? (
+      {fallbackChain ? (
         <div 
           className="mtr-logo-col" 
           suppressHydrationWarning={true}
           dangerouslySetInnerHTML={{
-            __html: `<img src="https://logo.clearbit.com/${domain}" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=${domain}&sz=128';" class="mtr-logo-img" alt="${brokerName}">`
+            __html: `<img src="${fallbackChain}" onerror="${onErrorFallback}" class="mtr-logo-img" alt="${brokerName}">`
           }} 
         />
       ) : (

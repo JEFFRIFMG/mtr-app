@@ -248,22 +248,33 @@ export default function BrokerDetailCard({ broker }: Props) {
   const offerTitle = cl(broker.offer_title);
   const hasOffer = !!offerTitle;
 
-  // === Logo source ===
+  // === Logo source (fallback chain) ===
+  //   1. broker.logo_url (custom dari tim design)
+  //   2. Clearbit Logo API
+  //   3. Google Favicon (via onerror)
+  //   4. Circle initial (kalau ga ada domain & ga ada logo_url)
   const logoColors = ['#2bcf93', '#0066FF', '#7B2FBE', '#E53E3E', '#D69E2E'];
   const logoFallbackColor = broker.color && broker.color !== '--'
     ? broker.color
     : logoColors[name.charCodeAt(0) % logoColors.length];
-  const logoSrc = d ? `https://logo.clearbit.com/${d}` : '';
+
+  const customLogo = cl(broker.logo_url);
+  const logoSrc = customLogo || (d ? `https://logo.clearbit.com/${d}` : '');
+  const onErrorFallback = d
+    ? `this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=${d}&sz=128';`
+    : `this.onerror=null;this.style.display='none';`;
 
   return (
     <section className="broker-card" aria-label="Broker overview card">
       <header className="header">
         <div className="logo-box">
           {logoSrc ? (
-            <img
-              src={logoSrc}
-              alt={name}
-              style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#fff' }}
+            <div
+              style={{ width: '100%', height: '100%' }}
+              suppressHydrationWarning={true}
+              dangerouslySetInnerHTML={{
+                __html: `<img src="${logoSrc}" alt="${name}" onerror="${onErrorFallback}" style="width:100%;height:100%;object-fit:contain;background:#fff;" />`,
+              }}
             />
           ) : (
             <div className="logo-fallback" style={{ background: logoFallbackColor }}>

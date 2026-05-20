@@ -57,6 +57,8 @@ export interface Broker {
   real_votes?: number | null;
   boost_total?: number | null;
   total_votes?: number | null;
+  // Logo upload (Phase 4)
+  logo_url?: string | null;
   is_published?: boolean | null;
   deleted_at?: string | null;
   created_at?: string;

@@ -2,6 +2,26 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/shared/supabase/server';
 import { requireAdmin } from '@/lib/admin/auth';
 
+// Fields yang TIDAK boleh di-update manual (generated/computed/auto-managed)
+const READONLY_FIELDS = [
+  'total_votes',    // GENERATED ALWAYS AS (real_votes + boost_total) STORED
+  'real_votes',     // di-update via trigger dari broker_votes
+  'boost_total',    // di-update via trigger dari vote_boosts
+  'created_at',
+  'updated_at',
+  'uuid',
+];
+
+function stripReadonly(body: Record<string, any>): Record<string, any> {
+  const clean: Record<string, any> = {};
+  for (const key of Object.keys(body)) {
+    if (!READONLY_FIELDS.includes(key)) {
+      clean[key] = body[key];
+    }
+  }
+  return clean;
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ uuid: string }> }
@@ -14,11 +34,12 @@ export async function PATCH(
 
   const { uuid } = await params;
   const body = await req.json();
+  const clean = stripReadonly(body);
 
   const supabase = createClient();
   const { data, error } = await supabase
     .from('brokers')
-    .update(body)
+    .update(clean)
     .eq('uuid', uuid)
     .select()
     .single();
