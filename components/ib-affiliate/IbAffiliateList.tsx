@@ -198,7 +198,7 @@ export default function IbAffiliateList({ initialPrograms }: Props) {
       <div className="mtr-ib-table-section" id="mtr-ib-table-section">
         <h2 className="mtr-ib-section-title">Pick Your <span className="hl">Best Deal</span></h2>
         <p className="mtr-ib-section-desc">
-          All rates are MTR partner rates - not what you'd get going direct.<br/>
+          All rates are MTR partner rates — not what you'd get going direct.<br/>
           Filter by commission type or sort any column to find your best match.
         </p>
 
@@ -296,7 +296,7 @@ export default function IbAffiliateList({ initialPrograms }: Props) {
             </div>
           </div>
 
-          {/* PAGINATION PANEL - Isolated Class, Transparent Background, & Dropdown Chevron Arrow */}
+          {/* PAGINATION PANEL */}
           {total > 0 && (
             <div className="mtr-ib-pagination-wrap" style={{ marginTop: '20px' }}>
               <div className="mtr-ib-pagination-info">

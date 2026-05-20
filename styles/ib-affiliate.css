@@ -97,7 +97,7 @@
 #mtr-ib-root .mtr-ib-apply-btn:hover { background:var(--mtr-green-glow); color:var(--mtr-green); }
 #mtr-ib-root .mtr-ib-disclaimer { padding:10px 14px; font-size:0.72rem; color:#4b5563; border-top:1px solid var(--mtr-ib-border-lt); }
 
-/* LOAD MORE / PAGINATION (REVISI ISOLATED CLASS & TRANSPARENT BACKGROUND & OPTION BG DARK NAVY) */
+/* LOAD MORE / PAGINATION (DESKTOP) */
 .mtr-ib-pagination-wrap { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 16px 4px 0 4px; background: transparent; border: none; }
 .mtr-ib-pagination-info { font-size: 13px; color: var(--mtr-green); }
 .mtr-ib-pagination-info b { color: var(--mtr-green); font-weight: 700; }
@@ -156,6 +156,9 @@
 #mtr-ib-root .mtr-ib-footer-cta-desc { font-size:0.92rem; color:var(--mtr-ib-muted); max-width:480px; margin:0 auto 28px; line-height:1.7; }
 #mtr-ib-root .mtr-ib-footer-cta-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
 
+/* =========================================
+    RESPONSIVE MEDIA QUERIES (REVISI MOBILE)
+   ========================================= */
 @media (max-width:768px) {
   #mtr-ib-root .mtr-ib-hero { padding:32px 0 0; }
   #mtr-ib-root .mtr-ib-hero-inner { grid-template-columns:1fr; gap:24px; }
@@ -168,10 +171,15 @@
   #mtr-ib-root .mtr-ib-why-grid { grid-template-columns:1fr 1fr; }
   #mtr-ib-root .mtr-ib-who-grid { grid-template-columns:1fr 1fr; }
   #mtr-ib-root .mtr-ib-footer-cta { padding:32px 20px; }
-  .mtr-ib-pagination-wrap { flex-direction: column; align-items: center; text-align: center; }
+  
+  /* REVISI MOBILE PAGINATION: Sembunyikan info text, paksa flex-row horizontal sejajar ujung-ke-ujung */
+  .mtr-ib-pagination-info { display: none !important; }
+  .mtr-ib-pagination-wrap { display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; padding: 16px 4px; }
 }
+
 @media (max-width:480px) {
-  #mtr-ib-root .mtr-ib-hero-grid { grid-template-columns:1fr; }
+  /* REVISI HERO CARDS MOBILE: Tetap dipaksa 1fr 1fr (2 kolom x 2 baris kotak) persis seperti WP Elementor */
+  #mtr-ib-root .mtr-ib-hero-grid { grid-template-columns: 1fr 1fr !important; }
   #mtr-ib-root .mtr-ib-why-grid { grid-template-columns:1fr; }
   #mtr-ib-root .mtr-ib-who-grid { grid-template-columns:1fr; }
 }
