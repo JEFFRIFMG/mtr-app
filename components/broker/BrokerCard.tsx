@@ -7,21 +7,14 @@ import { Tooltip } from '@/components/ui/Tooltip';
 
 interface BrokerCardProps {
   broker: any;
-  rank: number; // Ini dari map UI, kita jadikan fallback kalau rank DB kosong
+  rank: number;
   idx: number;
-  /** Live count override dari parent (Realtime subscription) */
   liveCount?: number;
+  medal?: 'gold' | 'silver' | 'bronze' | null;
 }
 
 const MTR_COLORS = ['#00A86B','#0066FF','#7B2FBE','#E53E3E','#D69E2E','#0BC5EA','#F6AD55','#68D391','#F687B3','#76E4F7'];
 
-/**
- * Format vote count gaya IG / YouTube:
- * 999     → "999"
- * 1605    → "1.6K"
- * 12500   → "12K"
- * 1200000 → "1.2M"
- */
 const formatVotes = (n: number): string => {
   if (n < 1000) return n.toString();
   if (n < 10000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
@@ -30,8 +23,7 @@ const formatVotes = (n: number): string => {
   return Math.floor(n / 1000000) + 'M';
 };
 
-export default function BrokerCard({ broker, rank, idx, liveCount }: BrokerCardProps) {
-  // Initial count dari Supabase (total_votes = real_votes + boost_total)
+export default function BrokerCard({ broker, rank, idx, liveCount, medal }: BrokerCardProps) {
   const [votes, setVotes] = useState<number>(broker.total_votes ?? 0);
   const [hasVoted, setHasVoted] = useState(false);
   const [isVoting, setIsVoting] = useState(false);
@@ -41,42 +33,29 @@ export default function BrokerCard({ broker, rank, idx, liveCount }: BrokerCardP
   const color = (broker.color && broker.color !== '--') ? broker.color : MTR_COLORS[idx % MTR_COLORS.length];
   const brokerName = broker.name || broker.legal_name || 'Unknown';
 
-  // Cek apakah voter ini udah pernah vote broker ini (localStorage)
   useEffect(() => {
-    if (broker.uuid) {
-      setHasVoted(checkHasVoted(broker.uuid));
-    }
+    if (broker.uuid) setHasVoted(checkHasVoted(broker.uuid));
   }, [broker.uuid]);
 
-  // Sync liveCount dari parent (Realtime subscription di BrokerRankings)
   useEffect(() => {
-    if (typeof liveCount === 'number') {
-      setVotes(liveCount);
-    }
+    if (typeof liveCount === 'number') setVotes(liveCount);
   }, [liveCount]);
 
   const handleVote = async () => {
     if (hasVoted || isVoting || !broker.uuid) return;
     setIsVoting(true);
-
-    // Optimistic update
     setVotes(v => v + 1);
     setHasVoted(true);
 
     const ok = await submitVote(broker.uuid);
     if (!ok) {
-      // Rollback kalau gagal
       setVotes(v => v - 1);
       setHasVoted(false);
     }
     setIsVoting(false);
   };
 
-  // --- AMANKAN LOGIKA RANKING DARI SUPABASE (FIELD: broker.rank) ---
-  const dbRank = broker.rank !== undefined && broker.rank !== null ? Number(broker.rank) : null;
-  
-  // Class warna teks angka hanya aktif jika rank di database bernilai 1, 2, atau 3
-  const rankCls = isInst ? '' : dbRank === 1 ? 'gold' : dbRank === 2 ? 'silver' : dbRank === 3 ? 'bronze' : '';
+  const rankCls = isInst ? '' : medal === 'gold' ? 'gold' : medal === 'silver' ? 'silver' : medal === 'bronze' ? 'bronze' : '';
   const scoreColor = score >= 8 ? 'high' : score >= 6.5 ? 'mid' : 'low';
   
   const spread = parseFloat(broker.eur_usd_spread);
@@ -97,18 +76,11 @@ export default function BrokerCard({ broker, rank, idx, liveCount }: BrokerCardP
   } catch(e) {}
 
   const customLogo = broker.logo_url || null;
-  const fallbackChain = customLogo
-    ? customLogo
-    : domain
-      ? `https://logo.clearbit.com/${domain}`
-      : null;
-  const onErrorFallback = domain
-    ? `this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=${domain}&sz=128';`
-    : `this.onerror=null;this.style.display='none';`;
+  const fallbackChain = customLogo ? customLogo : domain ? `https://logo.clearbit.com/${domain}` : null;
+  const onErrorFallback = domain ? `this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=${domain}&sz=128';` : `this.onerror=null;this.style.display='none';`;
 
   const voteTooltip = `${votes.toLocaleString()} ${votes === 1 ? 'recommendation' : 'recommendations'}`;
 
-  // Logika Normalisasi Data Regulasi (Auto-Split Pipe '|')
   const parsedRegulations = useMemo(() => {
     if (!broker.regulation || !Array.isArray(broker.regulation)) return [];
     return broker.regulation
@@ -118,21 +90,19 @@ export default function BrokerCard({ broker, rank, idx, liveCount }: BrokerCardP
 
   return (
     <div className={`mtr-card ${isInst ? 'mtr-inst' : ''}`} style={{ animationDelay: `${Math.min(rank * 0.018, 0.28)}s` }}>
-      {/* Warna Aksen Kiri dikunci murni berdasarkan dbRank (data asli Supabase) */}
       <div 
         className="mtr-accent" 
         style={{ 
-          background: dbRank === 1 ? 'var(--mtr-gold)' : 
-                      dbRank === 2 ? 'var(--mtr-silver)' : 
-                      dbRank === 3 ? 'var(--mtr-bronze)' : 
+          background: medal === 'gold' ? 'var(--mtr-gold)' : 
+                      medal === 'silver' ? 'var(--mtr-silver)' : 
+                      medal === 'bronze' ? 'var(--mtr-bronze)' : 
                       'transparent' 
         }}
       ></div>
       
-      {/* Angka Rank menampilkan dbRank asli dari database (jika kosong baru fallback ke rank UI) */}
       <div className="mtr-rank-col">
         <span className={`mtr-rank-num ${rankCls}`}>
-          {isInst ? '—' : (dbRank ?? rank)}
+          {isInst ? '—' : rank}
         </span>
       </div>
 

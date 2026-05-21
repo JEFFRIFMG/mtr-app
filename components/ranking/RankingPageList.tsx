@@ -14,9 +14,6 @@ const statusOptions = [
   { value: 'institution', label: 'Institutions' },
 ];
 
-/* =====================================================
-   CUSTOM SEARCHABLE DROPDOWN (MURNI TAILWIND + INPUT SEARCH)
-   ===================================================== */
 interface CustomDropdownProps {
   options: { value: string; label: string }[];
   value: string;
@@ -120,9 +117,6 @@ function CustomDropdown({ options, value, onChange, id, placeholder, activeDropd
   );
 }
 
-/* =====================================================
-   MAIN COMPONENT
-   ===================================================== */
 export default function RankingPageList({ initialBrokers }: Props) {
   const [search, setSearch] = useState('');
   const [tier, setTier] = useState('');
@@ -135,16 +129,13 @@ export default function RankingPageList({ initialBrokers }: Props) {
   const [pageSize, setPageSize] = useState(20);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
-  // Live vote counts dari Realtime
   const [liveVotes, setLiveVotes] = useState<Record<string, number>>({});
 
-  // Subscribe Realtime
   const handleVoteUpdate = useCallback((uuid: string, totalVotes: number) => {
     setLiveVotes(prev => ({ ...prev, [uuid]: totalVotes }));
   }, []);
   useVoteRealtime(handleVoteUpdate);
 
-  // Generate Opsi Dinamis
   const dynamicTiers = useMemo(() => {
     const uniqueTiers = new Set(initialBrokers.map(b => b.regulation_tier).filter(Boolean));
     const options = Array.from(uniqueTiers).sort().map(t => ({ value: t, label: t }));
@@ -162,7 +153,28 @@ export default function RankingPageList({ initialBrokers }: Props) {
     return broker.total_votes ?? 0;
   }, [liveVotes]);
 
-  // Main Filter & Sort Logic
+  // LOGIC FINAL: KALKULASI RANKING GLOBAL BERDASARKAN SCORE TERTINGGI (100% AMAN & CEPAT)
+  const globalRankMap = useMemo(() => {
+    const sorted = [...initialBrokers].sort((a, b) => {
+      const diff = (parseFloat(b.score) || 0) - (parseFloat(a.score) || 0);
+      if (diff === 0) return (a.name || '').localeCompare(b.name || '');
+      return diff;
+    });
+    const map: Record<string, number> = {};
+    sorted.forEach((b, index) => {
+      if (b.uuid) map[b.uuid] = index + 1;
+    });
+    return map;
+  }, [initialBrokers]);
+
+  const getMedal = useCallback((uuid: string) => {
+    const rank = globalRankMap[uuid];
+    if (rank === 1) return 'gold';
+    if (rank === 2) return 'silver';
+    if (rank === 3) return 'bronze';
+    return null;
+  }, [globalRankMap]);
+
   const filteredBrokers = useMemo(() => {
     let result = initialBrokers.filter(b => {
       const bStatus = b.status || '';
@@ -215,17 +227,13 @@ export default function RankingPageList({ initialBrokers }: Props) {
   return (
     <div className="mtr-rankings-wrap">
       
-      {/* Hero Section (Mengikuti simplisitas WP Elementor lo) */}
       <div className="mtr-main-hero">
         <h1>Broker <span style={{color:'#2bcf93'}}>Rankings</span> <span>{currentYear}</span></h1>
         <p>Top-rated brokers ranked by our independent scoring methodology. Updated <span>{currentMonthYear}</span>.</p>
       </div>
 
-      {/* Filters Area */}
       <div className="mtr-filters-wrap">
         <div className="mtr-filters">
-          
-          {/* Main Search Bar */}
           <div className="mtr-search-wrap">
             <svg className="mtr-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
               <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.5"/>
@@ -234,35 +242,9 @@ export default function RankingPageList({ initialBrokers }: Props) {
             <input type="text" placeholder="Search broker name, regulator…" value={search} onChange={e => {setSearch(e.target.value); setCurrentPage(1);}} />
           </div>
           
-          <CustomDropdown 
-            id="tier"
-            placeholder="tier"
-            options={dynamicTiers}
-            value={tier}
-            onChange={(val) => { setTier(val); setCurrentPage(1); }}
-            activeDropdown={activeDropdown}
-            setActiveDropdown={setActiveDropdown}
-          />
-          
-          <CustomDropdown 
-            id="region"
-            placeholder="region"
-            options={dynamicRegions}
-            value={region}
-            onChange={(val) => { setRegion(val); setCurrentPage(1); }}
-            activeDropdown={activeDropdown}
-            setActiveDropdown={setActiveDropdown}
-          />
-          
-          <CustomDropdown 
-            id="status"
-            placeholder="status"
-            options={statusOptions}
-            value={status}
-            onChange={(val) => { setStatus(val); setCurrentPage(1); }}
-            activeDropdown={activeDropdown}
-            setActiveDropdown={setActiveDropdown}
-          />
+          <CustomDropdown id="tier" placeholder="tier" options={dynamicTiers} value={tier} onChange={(val) => { setTier(val); setCurrentPage(1); }} activeDropdown={activeDropdown} setActiveDropdown={setActiveDropdown} />
+          <CustomDropdown id="region" placeholder="region" options={dynamicRegions} value={region} onChange={(val) => { setRegion(val); setCurrentPage(1); }} activeDropdown={activeDropdown} setActiveDropdown={setActiveDropdown} />
+          <CustomDropdown id="status" placeholder="status" options={statusOptions} value={status} onChange={(val) => { setStatus(val); setCurrentPage(1); }} activeDropdown={activeDropdown} setActiveDropdown={setActiveDropdown} />
 
           <div className="hidden max-[680px]:block basis-full h-0"></div>
 
@@ -275,7 +257,6 @@ export default function RankingPageList({ initialBrokers }: Props) {
         </div>
       </div>
 
-      {/* List Container */}
       <div className="mtr-rankings-list">
         {total === 0 ? (
           <div className="mtr-empty">No brokers match your filters.</div>
@@ -284,15 +265,16 @@ export default function RankingPageList({ initialBrokers }: Props) {
             <BrokerCard 
               key={broker.uuid || idx} 
               broker={broker} 
-              rank={(currentPage - 1) * pageSize + idx + 1} 
+              // TEMBAK RANK MURNI DARI PERINGKAT SCORE GLOBAL
+              rank={globalRankMap[broker.uuid] || 0} 
               idx={idx}
               liveCount={liveVotes[broker.uuid]}
+              medal={getMedal(broker.uuid)}
             />
           ))
         )}
       </div>
 
-      {/* Pagination Container */}
       {total > 0 && (
         <div className="mtr-pagination-wrap">
           <div className="mtr-pagination-info">

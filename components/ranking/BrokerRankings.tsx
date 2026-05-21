@@ -15,7 +15,7 @@ const statusOptions = [
 ];
 
 /* =====================================================
-   CUSTOM SEARCHABLE DROPDOWN (MURNI TAILWIND + INPUT SEARCH)
+   CUSTOM SEARCHABLE DROPDOWN
    ===================================================== */
 interface CustomDropdownProps {
   options: { value: string; label: string }[];
@@ -55,7 +55,6 @@ function CustomDropdown({ options, value, onChange, id, placeholder, activeDropd
   }, [options, localSearch]);
 
   return (
-    // FIX: Tambah max-[680px]:basis-0 biar mereka bagi rata 33.3% persis di mobile
     <div ref={dropdownRef} className="relative flex-1 min-w-[140px] max-[680px]:min-w-0 max-[680px]:basis-0 font-['Gantari'] select-none">
       <div
         onClick={() => setActiveDropdown(isOpen ? null : id)}
@@ -136,16 +135,13 @@ export default function BrokerRankings({ initialBrokers }: Props) {
   const [pageSize, setPageSize] = useState(20);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
-  // Live vote counts dari Realtime
   const [liveVotes, setLiveVotes] = useState<Record<string, number>>({});
 
-  // Subscribe Realtime
   const handleVoteUpdate = useCallback((uuid: string, totalVotes: number) => {
     setLiveVotes(prev => ({ ...prev, [uuid]: totalVotes }));
   }, []);
   useVoteRealtime(handleVoteUpdate);
 
-  // Generate Opsi Dinamis
   const dynamicTiers = useMemo(() => {
     const uniqueTiers = new Set(initialBrokers.map(b => b.regulation_tier).filter(Boolean));
     const options = Array.from(uniqueTiers).sort().map(t => ({ value: t, label: t }));
@@ -162,6 +158,28 @@ export default function BrokerRankings({ initialBrokers }: Props) {
     if (liveVotes[broker.uuid] !== undefined) return liveVotes[broker.uuid];
     return broker.total_votes ?? 0;
   }, [liveVotes]);
+
+  // LOGIC FINAL: KALKULASI RANKING GLOBAL BERDASARKAN SCORE TERTINGGI (100% AMAN & CEPAT)
+  const globalRankMap = useMemo(() => {
+    const sorted = [...initialBrokers].sort((a, b) => {
+      const diff = (parseFloat(b.score) || 0) - (parseFloat(a.score) || 0);
+      if (diff === 0) return (a.name || '').localeCompare(b.name || '');
+      return diff;
+    });
+    const map: Record<string, number> = {};
+    sorted.forEach((b, index) => {
+      if (b.uuid) map[b.uuid] = index + 1;
+    });
+    return map;
+  }, [initialBrokers]);
+
+  const getMedal = useCallback((uuid: string) => {
+    const rank = globalRankMap[uuid];
+    if (rank === 1) return 'gold';
+    if (rank === 2) return 'silver';
+    if (rank === 3) return 'bronze';
+    return null;
+  }, [globalRankMap]);
 
   // Main Filter & Sort Logic
   const filteredBrokers = useMemo(() => {
@@ -217,7 +235,6 @@ export default function BrokerRankings({ initialBrokers }: Props) {
 
   return (
     <div className="mtr-rankings-wrap">
-      {/* Hero Section */}
       <div className="mtr-main-hero">
         <div className="mtr-hero-badge">✦ Updated <span>{currentMonthYear}</span></div>
         <h1>Global Broker Rankings <span>{currentYear}</span></h1>
@@ -238,11 +255,8 @@ export default function BrokerRankings({ initialBrokers }: Props) {
         </div>
       </div>
 
-      {/* Filters Area */}
       <div className="mtr-filters-wrap">
         <div className="mtr-filters">
-          
-          {/* Main Search Bar */}
           <div className="mtr-search-wrap">
             <svg className="mtr-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
               <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.5"/>
@@ -251,37 +265,10 @@ export default function BrokerRankings({ initialBrokers }: Props) {
             <input type="text" placeholder="Search broker name, regulator…" value={search} onChange={e => {setSearch(e.target.value); setCurrentPage(1);}} />
           </div>
           
-          <CustomDropdown 
-            id="tier"
-            placeholder="tier"
-            options={dynamicTiers}
-            value={tier}
-            onChange={(val) => { setTier(val); setCurrentPage(1); }}
-            activeDropdown={activeDropdown}
-            setActiveDropdown={setActiveDropdown}
-          />
-          
-          <CustomDropdown 
-            id="region"
-            placeholder="region"
-            options={dynamicRegions}
-            value={region}
-            onChange={(val) => { setRegion(val); setCurrentPage(1); }}
-            activeDropdown={activeDropdown}
-            setActiveDropdown={setActiveDropdown}
-          />
-          
-          <CustomDropdown 
-            id="status"
-            placeholder="status"
-            options={statusOptions}
-            value={status}
-            onChange={(val) => { setStatus(val); setCurrentPage(1); }}
-            activeDropdown={activeDropdown}
-            setActiveDropdown={setActiveDropdown}
-          />
+          <CustomDropdown id="tier" placeholder="tier" options={dynamicTiers} value={tier} onChange={(val) => { setTier(val); setCurrentPage(1); }} activeDropdown={activeDropdown} setActiveDropdown={setActiveDropdown} />
+          <CustomDropdown id="region" placeholder="region" options={dynamicRegions} value={region} onChange={(val) => { setRegion(val); setCurrentPage(1); }} activeDropdown={activeDropdown} setActiveDropdown={setActiveDropdown} />
+          <CustomDropdown id="status" placeholder="status" options={statusOptions} value={status} onChange={(val) => { setStatus(val); setCurrentPage(1); }} activeDropdown={activeDropdown} setActiveDropdown={setActiveDropdown} />
 
-          {/* FIX: Tembok pembatas ini cuma muncul di mobile buat maksa tombol Sorting turun ke baris baru */}
           <div className="hidden max-[680px]:block basis-full h-0"></div>
 
           <div className="mtr-sort-group">
@@ -293,7 +280,6 @@ export default function BrokerRankings({ initialBrokers }: Props) {
         </div>
       </div>
 
-      {/* List Container */}
       <div className="mtr-rankings-list">
         {total === 0 ? (
           <div className="mtr-empty">No brokers match your filters.</div>
@@ -302,15 +288,16 @@ export default function BrokerRankings({ initialBrokers }: Props) {
             <BrokerCard 
               key={broker.uuid || idx} 
               broker={broker} 
-              rank={(currentPage - 1) * pageSize + idx + 1} 
+              // TEMBAK RANK MURNI DARI PERINGKAT SCORE GLOBAL
+              rank={globalRankMap[broker.uuid] || 0} 
               idx={idx}
               liveCount={liveVotes[broker.uuid]}
+              medal={getMedal(broker.uuid)}
             />
           ))
         )}
       </div>
 
-      {/* Pagination Container */}
       {total > 0 && (
         <div className="mtr-pagination-wrap">
           <div className="mtr-pagination-info">
