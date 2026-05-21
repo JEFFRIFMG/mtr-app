@@ -192,7 +192,7 @@ function htmlToArray(html: string): string[] {
   const listItems = doc.querySelectorAll('li');
   if (listItems.length > 0) {
     return Array.from(listItems)
-      .map((li) => li.innerHTML.trim())
+      .map((li) => unwrapBlockTags(li.innerHTML).trim())
       .filter((s) => s && s !== '<br>' && stripTags(s).trim().length > 0);
   }
 
@@ -207,6 +207,20 @@ function htmlToArray(html: string): string[] {
   // Last resort: plain text
   const text = doc.body.textContent?.trim() || '';
   return text ? [text] : [];
+}
+
+/**
+ * Hapus block-level tag pembungkus (mis. <p>) yang ditambahin Tiptap di dalam <li>.
+ * Inline formatting (<strong>, <em>, <a>) di-preserve.
+ *
+ * Contoh: "<p>Regulated by FCA</p>" → "Regulated by FCA"
+ * Contoh: "<p><strong>Top broker</strong></p>" → "<strong>Top broker</strong>"
+ */
+function unwrapBlockTags(html: string): string {
+  return html
+    .replace(/<\/?p[^>]*>/gi, '')
+    .replace(/<\/?div[^>]*>/gi, '')
+    .trim();
 }
 
 function escapeHtml(str: string): string {
