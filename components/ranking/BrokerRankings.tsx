@@ -354,10 +354,10 @@ export default function BrokerRankings({ initialBrokers }: Props) {
             <button className={`mtr-sort-btn ${sortField === 'score' ? 'active' : ''}`} onClick={() => handleSort('score')}>★ Score</button>
             <button className={`mtr-sort-btn ${sortField === 'popular' ? 'active' : ''}`} onClick={() => handleSort('popular')}>👍 Popular</button>
             <button className={`mtr-sort-btn ${sortField === 'name' ? 'active' : ''}`} onClick={() => handleSort('name')}>A–Z</button>
-            <button className={`mtr-sort-btn ${sortField === 'min_deposit' ? 'active' : ''}`} onClick={() => handleSort('min_deposit')}>💵 Min Deposit</button>
-            <button className={`mtr-sort-btn ${sortField === 'leverage' ? 'active' : ''}`} onClick={() => handleSort('leverage')}>⚡ Leverage</button>
-            <button className={`mtr-sort-btn ${sortField === 'spreads' ? 'active' : ''}`} onClick={() => handleSort('spreads')}>📉 Spreads</button>
-            <button className={`mtr-sort-btn ${sortField === 'instruments' ? 'active' : ''}`} onClick={() => handleSort('instruments')}>📊 Instruments</button>
+            <button className={`mtr-sort-btn ${sortField === 'min_deposit' ? 'active' : ''}`} onClick={() => handleSort('min_deposit')}>Min Deposit</button>
+            <button className={`mtr-sort-btn ${sortField === 'leverage' ? 'active' : ''}`} onClick={() => handleSort('leverage')}>Leverage</button>
+            <button className={`mtr-sort-btn ${sortField === 'spreads' ? 'active' : ''}`} onClick={() => handleSort('spreads')}>Spreads</button>
+            <button className={`mtr-sort-btn ${sortField === 'instruments' ? 'active' : ''}`} onClick={() => handleSort('instruments')}>Instruments</button>
           </div>
           <div className="mtr-count-label">{total} broker{total !== 1 ? 's' : ''}</div>
         </div>
