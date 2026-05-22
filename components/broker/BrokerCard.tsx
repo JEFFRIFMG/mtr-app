@@ -23,6 +23,74 @@ const formatVotes = (n: number): string => {
   return Math.floor(n / 1000000) + 'M';
 };
 
+/* =====================================================
+   BROKER LOGO — Fallback chain: Supabase → Clearbit → Google Favicon → Initial
+   Detect Clearbit placeholder/empty response via onLoad dimension check
+   ===================================================== */
+function BrokerLogo({ customLogo, domain, brokerName, color }: {
+  customLogo: string | null;
+  domain: string;
+  brokerName: string;
+  color: string;
+}) {
+  const sources = useMemo(() => {
+    const chain: string[] = [];
+    if (customLogo) chain.push(customLogo);
+    if (domain) {
+      chain.push(`https://logo.clearbit.com/${domain}`);
+      chain.push(`https://www.google.com/s2/favicons?domain=${domain}&sz=128`);
+    }
+    return chain;
+  }, [customLogo, domain]);
+
+  const [idx, setIdx] = useState(0);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setIdx(0);
+    setFailed(false);
+  }, [customLogo, domain]);
+
+  const advance = () => {
+    if (idx < sources.length - 1) {
+      setIdx(idx + 1);
+    } else {
+      setFailed(true);
+    }
+  };
+
+  const handleLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    // Clearbit/empty placeholder detection: real logos are >2px
+    if (img.naturalWidth <= 2 || img.naturalHeight <= 2) {
+      advance();
+    }
+  };
+
+  if (failed || sources.length === 0) {
+    return (
+      <div className="mtr-logo-col">
+        <div className="mtr-logo-circle" style={{ background: color }}>
+          {brokerName.charAt(0).toUpperCase()}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mtr-logo-col">
+      <img
+        key={sources[idx]}
+        src={sources[idx]}
+        onError={advance}
+        onLoad={handleLoad}
+        className="mtr-logo-img"
+        alt={brokerName}
+      />
+    </div>
+  );
+}
+
 export default function BrokerCard({ broker, rank, idx, liveCount, medal }: BrokerCardProps) {
   const [votes, setVotes] = useState<number>(broker.total_votes ?? 0);
   const [hasVoted, setHasVoted] = useState(false);
@@ -75,10 +143,6 @@ export default function BrokerCard({ broker, rank, idx, liveCount, medal }: Brok
     }
   } catch(e) {}
 
-  const customLogo = broker.logo_url || null;
-  const fallbackChain = customLogo ? customLogo : domain ? `https://logo.clearbit.com/${domain}` : null;
-  const onErrorFallback = domain ? `this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=${domain}&sz=128';` : `this.onerror=null;this.style.display='none';`;
-
   const voteTooltip = `${votes.toLocaleString()} ${votes === 1 ? 'recommendation' : 'recommendations'}`;
 
   const parsedRegulations = useMemo(() => {
@@ -106,19 +170,13 @@ export default function BrokerCard({ broker, rank, idx, liveCount, medal }: Brok
         </span>
       </div>
 
-      {fallbackChain ? (
-        <div 
-          className="mtr-logo-col" 
-          suppressHydrationWarning={true}
-          dangerouslySetInnerHTML={{
-            __html: `<img src="${fallbackChain}" onerror="${onErrorFallback}" class="mtr-logo-img" alt="${brokerName}">`
-          }} 
-        />
-      ) : (
-        <div className="mtr-logo-col">
-          <div className="mtr-logo-circle" style={{ background: color }}>{brokerName.charAt(0).toUpperCase()}</div>
-        </div>
-      )}
+      <BrokerLogo 
+        customLogo={broker.logo_url || null}
+        domain={domain}
+        brokerName={brokerName}
+        color={color}
+      />
+
       <div className="mtr-identity">
         <div className="mtr-name">{brokerName}</div>
         <div className="mtr-tag-row">
