@@ -33,8 +33,9 @@ export function BrokersTable({ brokers }: { brokers: Broker[] }) {
     return [...r].sort((a, b) => {
       const scoreA = Number(a.score ?? 0);
       const scoreB = Number(b.score ?? 0);
-
-      return scoreB - scoreA;
+      const diff = scoreB - scoreA;
+      if (diff !== 0) return diff;
+      return (a.name || '').localeCompare(b.name || '');
     });
   }, [brokers, search, filter]);
 
