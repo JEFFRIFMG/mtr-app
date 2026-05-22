@@ -24,8 +24,7 @@ const formatVotes = (n: number): string => {
 };
 
 /* =====================================================
-   BROKER LOGO — Fallback chain: Supabase → Clearbit → Google Favicon → Initial
-   Detect Clearbit placeholder/empty response via onLoad dimension check
+   BROKER LOGO — Fallback chain: Supabase → Google Favicon → Initial
    ===================================================== */
 function BrokerLogo({ customLogo, domain, brokerName, color }: {
   customLogo: string | null;
@@ -36,10 +35,7 @@ function BrokerLogo({ customLogo, domain, brokerName, color }: {
   const sources = useMemo(() => {
     const chain: string[] = [];
     if (customLogo) chain.push(customLogo);
-    if (domain) {
-      chain.push(`https://logo.clearbit.com/${domain}`);
-      chain.push(`https://www.google.com/s2/favicons?domain=${domain}&sz=128`);
-    }
+    if (domain) chain.push(`https://www.google.com/s2/favicons?domain=${domain}&sz=128`);
     return chain;
   }, [customLogo, domain]);
 
@@ -61,7 +57,6 @@ function BrokerLogo({ customLogo, domain, brokerName, color }: {
 
   const handleLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
-    // Clearbit/empty placeholder detection: real logos are >2px
     if (img.naturalWidth <= 2 || img.naturalHeight <= 2) {
       advance();
     }
