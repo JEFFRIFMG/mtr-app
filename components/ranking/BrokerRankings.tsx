@@ -199,11 +199,13 @@ export default function BrokerRankings({ initialBrokers }: Props) {
     result.sort((a, b) => {
       if (sortField === 'score') {
         const diff = (parseFloat(b.score) || 0) - (parseFloat(a.score) || 0);
-        return sortDir.score === 'desc' ? diff : -diff;
+        if (diff !== 0) return sortDir.score === 'desc' ? diff : -diff;
+        return (a.name || '').localeCompare(b.name || '');
       }
       if (sortField === 'popular') {
         const diff = getVoteCount(b) - getVoteCount(a);
-        return sortDir.popular === 'desc' ? diff : -diff;
+        if (diff !== 0) return sortDir.popular === 'desc' ? diff : -diff;
+        return (a.name || '').localeCompare(b.name || '');
       }
       if (sortField === 'name') {
         const diff = (a.name || '').localeCompare(b.name || '');
