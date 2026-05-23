@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import '@/styles/inquiry-forms.css';
 
-type TabType = 'broker' | 'ib' | 'trader';
+type TabType = 'broker' | 'ib_affiliate' | 'trader';
 
 // =====================================================
 // FORM CUSTOM SELECT (FIXED: Search selalu muncul!)
@@ -124,7 +124,7 @@ export function UnifiedInquiryForm() {
 
     if (activeTab === 'broker') topic = brokerTopic;
     if (activeTab === 'trader') topic = traderTopic;
-    if (activeTab === 'ib') ib_affiliate_type = ibType;
+    if (activeTab === 'ib_affiliate') ib_affiliate_type = ibType;
 
     const payload = {
       form_type: activeTab,
@@ -207,8 +207,8 @@ export function UnifiedInquiryForm() {
         </button>
         <button 
           type="button"
-          className={`mtr-tab-btn ${activeTab === 'ib' ? 'active' : ''}`}
-          onClick={() => { setActiveTab('ib'); setStatusMessage(null); }}
+          className={`mtr-tab-btn ${activeTab === 'ib_affiliate' ? 'active' : ''}`}
+          onClick={() => { setActiveTab('ib_affiliate'); setStatusMessage(null); }}
         >
           IB / Affiliate
         </button>
@@ -266,7 +266,7 @@ export function UnifiedInquiryForm() {
           )}
 
           {/* === IB / AFFILIATE FORM === */}
-          {activeTab === 'ib' && (
+          {activeTab === 'ib_affiliate' && (
             <>
               <div className="mtr-form-group">
                 <label className="mtr-form-label">IB / Affiliate Type *</label>
