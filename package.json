@@ -29,6 +29,9 @@
     "sanity": "^5.25.1",
     "styled-components": "^6.4.1"
   },
+  "overrides": {
+    "jsdom": "25.0.1"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
