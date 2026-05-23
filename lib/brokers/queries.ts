@@ -47,7 +47,7 @@ export async function getBrokerReview(uuid: string) {
     const review = await client.fetch(
       query,
       { uuid },
-      { cache: 'no-store' }
+      { next: { tags: [`broker-${uuid}`] } }
     );
     return review;
   } catch (error) {
