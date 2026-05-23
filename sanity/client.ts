@@ -5,5 +5,5 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true, // false kalau pakai ISR + on-demand revalidation
+  useCdn: false, // false kalau pakai ISR + on-demand revalidation
 });

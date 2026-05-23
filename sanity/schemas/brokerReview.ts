@@ -22,72 +22,13 @@ export const brokerReview = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'content',
-      title: 'Review Content',
-      type: 'array',
-      of: [
-        {
-          type: 'block',
-          styles: [
-            { title: 'Normal', value: 'normal' },
-            { title: 'H2', value: 'h2' },
-            { title: 'H3', value: 'h3' },
-            { title: 'H4', value: 'h4' },
-            { title: 'Quote', value: 'blockquote' },
-          ],
-          marks: {
-            decorators: [
-              { title: 'Bold', value: 'strong' },
-              { title: 'Italic', value: 'em' },
-              { title: 'Underline', value: 'underline' },
-            ],
-            annotations: [
-              {
-                name: 'link',
-                type: 'object',
-                title: 'Link',
-                fields: [
-                  { name: 'href', type: 'url', title: 'URL' },
-                  {
-                    name: 'rel',
-                    type: 'string',
-                    title: 'Rel',
-                    initialValue: 'nofollow noopener noreferrer',
-                  },
-                ],
-              },
-            ],
-          },
-        },
-        {
-          type: 'image',
-          options: { hotspot: true },
-          fields: [{ name: 'alt', type: 'string', title: 'Alt text' }],
-        },
-        {
-          type: 'object',
-          name: 'table',
-          title: 'Table',
-          fields: [
-            {
-              name: 'rows',
-              type: 'array',
-              of: [
-                {
-                  type: 'object',
-                  fields: [
-                    {
-                      name: 'cells',
-                      type: 'array',
-                      of: [{ type: 'string' }],
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
+      name: 'htmlContent',
+      title: 'HTML Content',
+      type: 'text',
+      rows: 30,
+      description:
+        'Paste HTML mentah di sini (dari WP, Claude, AI lain, atau editor HTML manapun). Render di page broker akan mengikuti struktur HTML aslinya.',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'status',

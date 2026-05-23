@@ -44,7 +44,11 @@ export async function getBrokerBySlug(slug: string): Promise<Broker | null> {
 export async function getBrokerReview(uuid: string) {
   try {
     const query = `*[_type == "brokerReview" && brokerUuid == $uuid && status == "published"][0]`;
-    const review = await client.fetch(query, { uuid });
+    const review = await client.fetch(
+      query,
+      { uuid },
+      { cache: 'no-store' }
+    );
     return review;
   } catch (error) {
     console.error('Sanity fetch error:', error);

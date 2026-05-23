@@ -1,0 +1,277 @@
+/* ============================================
+   Broker Review HTML Content Styling
+   Mengikuti brand MTR: dark theme, accent #00A86B
+   ============================================ */
+
+.broker-review-html {
+  color: #deebff;
+  font-family: 'Gantari', 'Segoe UI', Arial, sans-serif;
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+/* Headings */
+.broker-review-html h1,
+.broker-review-html h2,
+.broker-review-html h3,
+.broker-review-html h4,
+.broker-review-html h5,
+.broker-review-html h6 {
+  color: #ffffff;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.broker-review-html h1 { font-size: 2.25rem; }
+.broker-review-html h2 {
+  font-size: 1.875rem;
+  margin-top: 2.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.broker-review-html h3 { font-size: 1.5rem; }
+.broker-review-html h4 { font-size: 1.25rem; }
+.broker-review-html h5 { font-size: 1.125rem; }
+.broker-review-html h6 { font-size: 1rem; }
+
+/* Paragraphs */
+.broker-review-html p {
+  margin: 1rem 0;
+  color: #deebff;
+}
+
+/* Inline marks */
+.broker-review-html strong,
+.broker-review-html b {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.broker-review-html em,
+.broker-review-html i {
+  font-style: italic;
+}
+
+.broker-review-html mark {
+  background-color: rgba(0, 168, 107, 0.2);
+  color: #ffffff;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+.broker-review-html sup,
+.broker-review-html sub {
+  font-size: 0.75em;
+}
+
+/* Links */
+.broker-review-html a {
+  color: #00A86B;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.broker-review-html a:hover {
+  color: #00d488;
+  text-decoration: underline;
+}
+
+/* Lists */
+.broker-review-html ul,
+.broker-review-html ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+.broker-review-html ul { list-style-type: disc; }
+.broker-review-html ol { list-style-type: decimal; }
+.broker-review-html li {
+  margin: 0.4rem 0;
+  color: #deebff;
+}
+.broker-review-html li::marker {
+  color: #00A86B;
+}
+.broker-review-html ul ul,
+.broker-review-html ol ol,
+.broker-review-html ul ol,
+.broker-review-html ol ul {
+  margin: 0.3rem 0;
+}
+
+/* Blockquote */
+.broker-review-html blockquote {
+  margin: 1.5rem 0;
+  padding: 0.75rem 1.25rem;
+  border-left: 4px solid #00A86B;
+  background-color: rgba(255, 255, 255, 0.03);
+  font-style: italic;
+  color: #a9bcde;
+}
+.broker-review-html blockquote p { margin: 0.5rem 0; }
+
+/* Code */
+.broker-review-html code {
+  background-color: rgba(255, 255, 255, 0.08);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.9em;
+  color: #ffd700;
+}
+.broker-review-html pre {
+  background-color: #0A1220;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1.25rem 0;
+}
+.broker-review-html pre code {
+  background: transparent;
+  padding: 0;
+  color: #deebff;
+}
+
+/* HR */
+.broker-review-html hr {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 2rem 0;
+}
+
+/* ============================================
+   Tables — clone style WP MTR (dark, alternating rows)
+   ============================================ */
+.broker-review-html table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 0.9rem;
+}
+
+.broker-review-html thead {
+  background-color: #0F1825;
+}
+
+.broker-review-html thead th,
+.broker-review-html thead td {
+  color: #ffffff;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.broker-review-html tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.broker-review-html tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+.broker-review-html tbody tr:last-child {
+  border-bottom: none;
+}
+
+.broker-review-html td,
+.broker-review-html th {
+  padding: 0.85rem 1rem;
+  vertical-align: top;
+  color: #deebff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.broker-review-html th {
+  color: #ffffff;
+  font-weight: 600;
+  text-align: left;
+}
+
+.broker-review-html caption {
+  caption-side: top;
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  color: #a9bcde;
+  background-color: #0A1220;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  text-align: left;
+}
+
+/* ============================================
+   Images
+   ============================================ */
+.broker-review-html img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1.25rem 0;
+}
+.broker-review-html figure {
+  margin: 1.5rem 0;
+}
+.broker-review-html figcaption {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #a9bcde;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* ============================================
+   Details / Summary (native FAQ accordion)
+   ============================================ */
+.broker-review-html details {
+  margin: 0.75rem 0;
+  background-color: #0F1825;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.broker-review-html summary {
+  cursor: pointer;
+  padding: 1rem 1.25rem;
+  font-weight: 500;
+  color: #ffffff;
+  list-style: none;
+  position: relative;
+  padding-right: 2.5rem;
+}
+.broker-review-html summary::-webkit-details-marker { display: none; }
+.broker-review-html summary::after {
+  content: '+';
+  position: absolute;
+  right: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #00A86B;
+  font-size: 1.25rem;
+  transition: transform 0.2s ease;
+}
+.broker-review-html details[open] summary::after {
+  content: '−';
+}
+.broker-review-html details > *:not(summary) {
+  padding: 0 1.25rem 1rem 1.25rem;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 768px) {
+  .broker-review-html { font-size: 0.95rem; }
+  .broker-review-html h1 { font-size: 1.75rem; }
+  .broker-review-html h2 { font-size: 1.5rem; }
+  .broker-review-html h3 { font-size: 1.25rem; }
+  .broker-review-html h4 { font-size: 1.1rem; }
+  .broker-review-html table { font-size: 0.85rem; }
+  .broker-review-html td,
+  .broker-review-html th { padding: 0.65rem 0.75rem; }
+
+  /* Tabel scroll horizontal di mobile biar ga overflow */
+  .broker-review-html table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}

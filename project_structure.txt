@@ -29,6 +29,9 @@
 │   │   │   ├── page.tsx
 │   │   ├── [login]
 │   │   │   ├── page.tsx
+│   │   ├── [submissions]
+│   │   │   ├── [[uuid]]
+│   │   │   ├── page.tsx
 │   │   ├── layout.tsx
 │   │   ├── page.tsx
 │   ├── [api]
@@ -44,6 +47,9 @@
 │   │   │   │   │   ├── [beacon-delete]
 │   │   │   │   │   │   ├── route.ts
 │   │   │   │   │   ├── route.ts
+│   │   │   │   ├── [[uuid]]
+│   │   │   │   ├── route.ts
+│   │   │   ├── [submissions]
 │   │   │   │   ├── [[uuid]]
 │   │   │   │   ├── route.ts
 │   │   ├── [brokers]
@@ -78,6 +84,11 @@
 │   │   ├── BrokerRankings.tsx
 │   │   ├── RankingPageList.tsx
 │   ├── [rankings]
+│   ├── [review]
+│   │   ├── [blocks]
+│   │   │   ├── FaqBlock.tsx
+│   │   │   ├── TableBlock.tsx
+│   │   ├── PortableTextRenderer.tsx
 │   ├── [ui]
 │   │   ├── Tooltip.tsx
 ├── [config]
@@ -124,6 +135,7 @@
 │   ├── broker.ts
 │   ├── footer.ts
 │   ├── ibAffiliate.ts
+│   ├── inquiry.ts
 │   ├── navbar.ts
 ├── .env.local
 ├── AGENTS.md
