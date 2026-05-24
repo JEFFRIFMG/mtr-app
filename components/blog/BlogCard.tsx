@@ -23,24 +23,29 @@ export default function BlogCard({
   const href = `/blog/${post.slug.current}`;
 
   return (
-    <article className="blog-card">
-      <div className="blog-card__top">
-        <Link href={href} className="blog-card__image-wrap" aria-label={post.title}>
+    <article className="flex flex-col h-full bg-[#0F1825] border border-white/10 rounded-[16px] p-6 transition-colors hover:border-white/20">
+      <div className="flex-col flex flex-1">
+        {/* Wrapper Gambar: Pake aspect-video biar semua gambar ukurannya konsisten 16:9 */}
+        <Link 
+          href={href} 
+          className="relative block w-full aspect-video rounded-lg overflow-hidden mb-5" 
+          aria-label={post.title}
+        >
           {post.featuredImageUrl ? (
             <Image
               src={post.featuredImageUrl}
               alt={post.featuredImageAlt || post.title}
-              width={400}
-              height={220}
-              className="blog-card__image"
+              fill
+              className="object-cover transition-transform duration-300 hover:scale-105"
             />
           ) : (
-            <div className="blog-card__image blog-card__image--placeholder" />
+            <div className="w-full h-full bg-white/5" />
           )}
         </Link>
 
+        {/* Tanggal */}
         {post.publishedAt && (
-          <div className="blog-card__date">
+          <div className="flex items-center gap-2 text-sm text-[#a9bcde] mb-3">
             <svg
               width="14"
               height="14"
@@ -59,16 +64,26 @@ export default function BlogCard({
           </div>
         )}
 
-        <h3 className="blog-card__title">
-          <Link href={href}>{post.title}</Link>
+        {/* Judul Artikel */}
+        <h3 className="text-xl font-bold text-white mb-3 leading-snug">
+          <Link href={href} className="hover:text-[#00A86B] transition-colors">
+            {post.title}
+          </Link>
         </h3>
 
+        {/* Excerpt (Line clamp biar maksimal 3 baris aja) */}
         {showExcerpt && post.excerpt && (
-          <p className="blog-card__excerpt">{post.excerpt}</p>
+          <p className="text-sm text-[#a9bcde] line-clamp-3 mb-6">
+            {post.excerpt}
+          </p>
         )}
       </div>
 
-      <Link href={href} className="blog-card__cta">
+      {/* Tombol Read More (mt-auto buat dorong selalu ke bawah biar rata) */}
+      <Link 
+        href={href} 
+        className="mt-auto inline-flex items-center gap-2 text-[15px] font-semibold text-[#00A86B] hover:text-[#00d488] transition-colors"
+      >
         Read More
         <svg
           width="16"

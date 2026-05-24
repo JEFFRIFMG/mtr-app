@@ -165,16 +165,13 @@ export default async function BlogDetailPage({ params }: PageProps) {
         <div className="blog-detail__back">
           <Link href="/blog" className="blog-detail__back-link">
             <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
+              width="16"
+              height="16"
+              viewBox="0 0 448 512"
+              fill="currentColor"
               aria-hidden="true"
             >
-              <line x1="19" y1="12" x2="5" y2="12" />
-              <polyline points="12 19 5 12 12 19" />
+              <path d="M257.5 445.1l-22.2 22.2c-9.4 9.4-24.6 9.4-33.9 0L7 273c-9.4-9.4-9.4-24.6 0-33.9L201.4 44.7c9.4-9.4 24.6-9.4 33.9 0l22.2 22.2c9.5 9.5 9.3 25-.4 34.3L136.6 216H424c13.3 0 24 10.7 24 24v32c0 13.3-10.7 24-24 24H136.6l120.5 114.8c9.8 9.3 10 24.8.4 34.3z" />
             </svg>
             Back
           </Link>
@@ -232,19 +229,17 @@ export default async function BlogDetailPage({ params }: PageProps) {
           )}
         </header>
 
-        <div className="blog-detail__layout">
-          <ShareSticky url={url} title={post.title} />
-
+        <div className="blog-detail__layout border border-white/10 rounded-[24px] p-6 lg:p-10 mt-8 bg-[#0F1825]/50">
           <div className="blog-detail__content-col">
             {post.featuredImageUrl && (
-              <figure className="blog-detail__featured">
+              /* Wrapper digembok rasionya ke 16:9 (aspect-video) biar ga bakal melar ke bawah */
+              <figure className="relative w-full aspect-video rounded-xl overflow-hidden mb-8 bg-[#0F1825] border border-white/5">
                 <Image
                   src={post.featuredImageUrl}
                   alt={post.featuredImageAlt || post.title}
-                  width={1200}
-                  height={630}
+                  fill
                   priority
-                  style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+                  className="object-cover"
                 />
               </figure>
             )}
@@ -260,6 +255,8 @@ export default async function BlogDetailPage({ params }: PageProps) {
           </div>
 
           <div className="blog-detail__sidebar">
+            <ShareSticky url={url} title={post.title} />
+            <hr className="my-8 border-t border-white/10 border-dashed" />
             <LatestPostsSidebar posts={latestFiltered} />
           </div>
         </div>
