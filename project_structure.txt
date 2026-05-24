@@ -30,10 +30,22 @@
 │   │   │   │   ├── page.tsx
 │   │   │   ├── [[uuid]]
 │   │   │   ├── BrokerForm.tsx
+│   │   │   ├── BrokersPagination.tsx
 │   │   │   ├── BrokersTable.tsx
 │   │   │   ├── page.tsx
 │   │   ├── [login]
 │   │   │   ├── page.tsx
+│   │   ├── [reviews]
+│   │   │   ├── [bulk]
+│   │   │   │   ├── BulkReviewForm.tsx
+│   │   │   │   ├── page.tsx
+│   │   │   ├── [new]
+│   │   │   │   ├── AddReviewForm.tsx
+│   │   │   │   ├── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── ReviewsFilters.tsx
+│   │   │   ├── ReviewsPagination.tsx
+│   │   │   ├── ReviewsTable.tsx
 │   │   ├── [submissions]
 │   │   │   ├── [[uuid]]
 │   │   │   ├── page.tsx
@@ -54,6 +66,11 @@
 │   │   │   │   │   ├── route.ts
 │   │   │   │   ├── [[uuid]]
 │   │   │   │   ├── route.ts
+│   │   │   ├── [reviews]
+│   │   │   │   ├── [bulk]
+│   │   │   │   │   ├── route.ts
+│   │   │   │   ├── [[id]]
+│   │   │   │   ├── route.ts
 │   │   │   ├── [submissions]
 │   │   │   │   ├── [[uuid]]
 │   │   │   │   ├── route.ts
@@ -61,6 +78,8 @@
 │   │   │   ├── [list]
 │   │   │   │   ├── route.ts
 │   │   ├── [inquiries]
+│   │   │   ├── route.ts
+│   │   ├── [reviews]
 │   │   │   ├── route.ts
 │   │   ├── [vote]
 │   │   │   ├── route.ts
@@ -89,6 +108,7 @@
 │   ├── [broker]
 │   │   ├── BrokerCard.tsx
 │   │   ├── BrokerDetailCard.tsx
+│   │   ├── BrokerReviews.tsx
 │   │   ├── VoteButton.tsx
 │   ├── [comparison]
 │   │   ├── BrokerComparison.tsx
@@ -118,6 +138,7 @@
 │   │   ├── queries.ts
 │   ├── [brokers]
 │   │   ├── queries.ts
+│   │   ├── reviews.ts
 │   ├── [ib-affiliates]
 │   │   ├── queries.ts
 │   ├── [shared]
@@ -161,6 +182,7 @@
 │   ├── blogPost.ts
 │   ├── blogTag.ts
 │   ├── broker.ts
+│   ├── brokerReview.ts
 │   ├── footer.ts
 │   ├── ibAffiliate.ts
 │   ├── inquiry.ts
