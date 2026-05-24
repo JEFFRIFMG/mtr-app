@@ -2,6 +2,9 @@
 │   ├── [(public)]
 │   │   ├── [awards]
 │   │   │   ├── page.tsx
+│   │   ├── [blog]
+│   │   │   ├── [[slug]]
+│   │   │   ├── page.tsx
 │   │   ├── [brokers]
 │   │   │   ├── [[slug]]
 │   │   ├── [comparison]
@@ -64,9 +67,20 @@
 │   ├── favicon.ico
 │   ├── globals.css
 │   ├── layout.tsx
+│   ├── robots.ts
+│   ├── sitemap.ts
 ├── [components]
 │   ├── [admin]
 │   │   ├── RichTextEditor.tsx
+│   ├── [blog]
+│   │   ├── AuthorBio.tsx
+│   │   ├── BlogCard.tsx
+│   │   ├── BlogComments.tsx
+│   │   ├── BlogFilterTabs.tsx
+│   │   ├── BlogList.tsx
+│   │   ├── LatestPostsSidebar.tsx
+│   │   ├── RelatedPosts.tsx
+│   │   ├── ShareSticky.tsx
 │   ├── [broker]
 │   │   ├── BrokerCard.tsx
 │   │   ├── BrokerDetailCard.tsx
@@ -84,11 +98,6 @@
 │   │   ├── BrokerRankings.tsx
 │   │   ├── RankingPageList.tsx
 │   ├── [rankings]
-│   ├── [review]
-│   │   ├── [blocks]
-│   │   │   ├── FaqBlock.tsx
-│   │   │   ├── TableBlock.tsx
-│   │   ├── PortableTextRenderer.tsx
 │   ├── [ui]
 │   │   ├── Tooltip.tsx
 ├── [config]
@@ -98,6 +107,9 @@
 │   ├── [admin]
 │   │   ├── auth.ts
 │   │   ├── csvParser.ts
+│   │   ├── queries.ts
+│   ├── [blog]
+│   │   ├── pages.ts
 │   │   ├── queries.ts
 │   ├── [brokers]
 │   │   ├── queries.ts
@@ -116,9 +128,13 @@
 │   ├── window.svg
 ├── [sanity]
 │   ├── [components]
+│   │   ├── BlogPostDashboard.tsx
 │   │   ├── BrokerDashboard.tsx
 │   ├── [schemas]
+│   │   ├── author.ts
+│   │   ├── blogCategory.ts
 │   │   ├── blogPost.ts
+│   │   ├── blogTag.ts
 │   │   ├── brokerReview.ts
 │   │   ├── index.ts
 │   ├── client.ts
@@ -126,12 +142,19 @@
 │   ├── structure.ts
 ├── [styles]
 │   ├── awards.css
+│   ├── blog-list.css
+│   ├── blog-post.css
 │   ├── broker-detail.css
+│   ├── broker-review.css
 │   ├── comparison.css
 │   ├── homepage.css
 │   ├── ib-affiliate.css
 │   ├── inquiry-forms.css
 ├── [types]
+│   ├── author.ts
+│   ├── blogCategory.ts
+│   ├── blogPost.ts
+│   ├── blogTag.ts
 │   ├── broker.ts
 │   ├── footer.ts
 │   ├── ibAffiliate.ts
