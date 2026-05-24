@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/shared/supabase/server';
 import { requireAdmin } from '@/lib/admin/auth';
 import { ReviewsTable } from './ReviewsTable';
+import { ReviewsFilters } from './ReviewsFilters';
+import { ReviewsPagination } from './ReviewsPagination';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -8,7 +10,13 @@ export const dynamic = 'force-dynamic';
 interface SearchParams {
   status?: string;
   source?: string;
+  broker_uuid?: string;
+  q?: string;
+  page?: string;
+  per_page?: string;
 }
+
+const ALLOWED_PER_PAGE = [20, 50, 100, 500];
 
 export default async function ReviewsPage({
   searchParams,
@@ -19,121 +27,123 @@ export default async function ReviewsPage({
   const params = await searchParams;
   const status = params.status || '';
   const source = params.source || '';
+  const brokerUuid = params.broker_uuid || '';
+  const searchQuery = params.q?.trim() || '';
+
+  const perPageRaw = parseInt(params.per_page || '20', 10);
+  const perPage = ALLOWED_PER_PAGE.includes(perPageRaw) ? perPageRaw : 20;
+  const pageRaw = parseInt(params.page || '1', 10);
+  const page = pageRaw > 0 ? pageRaw : 1;
 
   const supabase = createClient();
-  let query = supabase
+
+  // Fetch broker list buat filter dropdown
+  const { data: brokers } = await supabase
+    .from('brokers')
+    .select('uuid, name')
+    .is('deleted_at', null)
+    .eq('is_published', true)
+    .order('name', { ascending: true });
+
+  // Count total (filtered)
+  let countQuery = supabase
+    .from('broker_reviews')
+    .select('*', { count: 'exact', head: true });
+
+  if (status) countQuery = countQuery.eq('status', status);
+  if (source) countQuery = countQuery.eq('source', source);
+  if (brokerUuid) countQuery = countQuery.eq('broker_uuid', brokerUuid);
+  if (searchQuery) {
+    countQuery = countQuery.or(
+      `guest_name.ilike.%${searchQuery}%,guest_email.ilike.%${searchQuery}%,review_text.ilike.%${searchQuery}%`
+    );
+  }
+
+  const { count: totalCount } = await countQuery;
+  const total = totalCount || 0;
+
+  // Calculate pagination
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
+  const currentPage = Math.min(page, totalPages);
+  const from = (currentPage - 1) * perPage;
+  const to = from + perPage - 1;
+
+  // Fetch paginated reviews
+  let dataQuery = supabase
     .from('broker_reviews')
     .select('*, brokers!inner(name, slug)')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(from, to);
 
-  if (status) query = query.eq('status', status);
-  if (source) query = query.eq('source', source);
+  if (status) dataQuery = dataQuery.eq('status', status);
+  if (source) dataQuery = dataQuery.eq('source', source);
+  if (brokerUuid) dataQuery = dataQuery.eq('broker_uuid', brokerUuid);
+  if (searchQuery) {
+    dataQuery = dataQuery.or(
+      `guest_name.ilike.%${searchQuery}%,guest_email.ilike.%${searchQuery}%,review_text.ilike.%${searchQuery}%`
+    );
+  }
 
-  const { data: reviews } = await query;
+  const { data: reviews } = await dataQuery;
 
   const { count: pendingCount } = await supabase
     .from('broker_reviews')
     .select('*', { count: 'exact', head: true })
     .eq('status', 'pending');
 
+  const showingFrom = total === 0 ? 0 : from + 1;
+  const showingTo = Math.min(from + perPage, total);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-      <div>
-        <h1 className="text-2xl font-bold">Reviews</h1>
-        <p className="text-sm mt-1" style={{ color: '#7A8FA6' }}>
-          {reviews?.length || 0} reviews shown
-          {pendingCount ? ` • ${pendingCount} pending` : ''}
-        </p>
+        <div>
+          <h1 className="text-2xl font-bold">Reviews</h1>
+          <p className="text-sm mt-1" style={{ color: '#7A8FA6' }}>
+            {total} reviews total
+            {pendingCount ? ` • ${pendingCount} pending` : ''}
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Link
+            href="/admin/reviews/bulk"
+            className="px-4 py-2 rounded font-medium border"
+            style={{ borderColor: '#00A86B', color: '#00A86B' }}
+          >
+            Bulk Add
+          </Link>
+          <Link
+            href="/admin/reviews/new"
+            className="px-4 py-2 rounded font-medium"
+            style={{ background: '#00A86B', color: '#fff' }}
+          >
+            + Add Review
+          </Link>
+        </div>
       </div>
-      <div className="flex gap-3">
-        <Link
-          href="/admin/reviews/bulk"
-          className="px-4 py-2 rounded font-medium border"
-          style={{ borderColor: '#00A86B', color: '#00A86B' }}
-        >
-          Bulk Add
-        </Link>
-        <Link
-          href="/admin/reviews/new"
-          className="px-4 py-2 rounded font-medium"
-          style={{ background: '#00A86B', color: '#fff' }}
-        >
-          + Add Review
-        </Link>
-      </div>
-    </div>
 
-      {/* Filters */}
-      <div className="flex gap-3 mb-4 flex-wrap">
-        <FilterGroup
-          label="Status"
-          current={status}
-          options={[
-            { value: '', label: 'All' },
-            { value: 'pending', label: 'Pending' },
-            { value: 'approved', label: 'Approved' },
-            { value: 'rejected', label: 'Rejected' },
-          ]}
-          paramKey="status"
-          otherParam={source ? `&source=${source}` : ''}
-        />
-        <FilterGroup
-          label="Source"
-          current={source}
-          options={[
-            { value: '', label: 'All' },
-            { value: 'visitor', label: 'Visitor' },
-            { value: 'admin', label: 'Admin' },
-          ]}
-          paramKey="source"
-          otherParam={status ? `&status=${status}` : ''}
-        />
-      </div>
+      <ReviewsFilters
+        brokers={brokers || []}
+        currentStatus={status}
+        currentSource={source}
+        currentBrokerUuid={brokerUuid}
+        currentSearch={searchQuery}
+      />
 
       <ReviewsTable reviews={reviews || []} />
-    </div>
-  );
-}
 
-function FilterGroup({
-  label,
-  current,
-  options,
-  paramKey,
-  otherParam,
-}: {
-  label: string;
-  current: string;
-  options: { value: string; label: string }[];
-  paramKey: string;
-  otherParam: string;
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm" style={{ color: '#7A8FA6' }}>
-        {label}:
-      </span>
-      <div className="flex gap-1">
-        {options.map((opt) => {
-          const href = `/admin/reviews?${paramKey}=${opt.value}${otherParam}`;
-          const active = current === opt.value;
-          return (
-            <Link
-              key={opt.value}
-              href={href}
-              className="text-xs px-3 py-1.5 rounded-full border transition"
-              style={{
-                background: active ? 'rgba(0,168,107,0.12)' : 'transparent',
-                borderColor: active ? '#00A86B' : 'rgba(255,255,255,0.22)',
-                color: active ? '#00A86B' : '#7A8FA6',
-              }}
-            >
-              {opt.label}
-            </Link>
-          );
-        })}
-      </div>
+      <ReviewsPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        perPage={perPage}
+        total={total}
+        showingFrom={showingFrom}
+        showingTo={showingTo}
+        currentStatus={status}
+        currentSource={source}
+        currentBrokerUuid={brokerUuid}
+        currentSearch={searchQuery}
+      />
     </div>
   );
 }
