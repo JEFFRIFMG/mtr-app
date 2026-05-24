@@ -398,20 +398,47 @@ export default function BrokerReviews({ brokerUuid, brokerName, initialReviews, 
                     Previous
                   </button>
 
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      type="button"
-                      onClick={() => setCurrentPage(page)}
-                      className={`min-w-[32px] h-8 text-xs rounded-md border transition ${
-                        currentPage === page
-                          ? 'bg-[rgba(0,168,107,0.12)] border-[#00A86B] text-[#00A86B]'
-                          : 'border-[rgba(255,255,255,0.22)] text-[#a9bcde] hover:text-white'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
+                  {(() => {
+                    // Smart pagination: show first, last, current ± 1, ellipsis
+                    const pages: (number | 'ellipsis')[] = [];
+                    const showRange = 1; // current ± 1
+
+                    for (let i = 1; i <= totalPages; i++) {
+                      if (
+                        i === 1 ||
+                        i === totalPages ||
+                        (i >= currentPage - showRange && i <= currentPage + showRange)
+                      ) {
+                        pages.push(i);
+                      } else if (pages[pages.length - 1] !== 'ellipsis') {
+                        pages.push('ellipsis');
+                      }
+                    }
+
+                    return pages.map((page, idx) =>
+                      page === 'ellipsis' ? (
+                        <span
+                          key={`ellipsis-${idx}`}
+                          className="px-1 text-xs text-[#a9bcde] select-none"
+                        >
+                          …
+                        </span>
+                      ) : (
+                        <button
+                          key={page}
+                          type="button"
+                          onClick={() => setCurrentPage(page)}
+                          className={`min-w-[32px] h-8 text-xs rounded-md border transition ${
+                            currentPage === page
+                              ? 'bg-[rgba(0,168,107,0.12)] border-[#00A86B] text-[#00A86B]'
+                              : 'border-[rgba(255,255,255,0.22)] text-[#a9bcde] hover:text-white'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      )
+                    );
+                  })()}
 
                   <button
                     type="button"
