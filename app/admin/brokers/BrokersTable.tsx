@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Broker } from '@/types/broker';
 
-export function BrokersTable({ brokers }: { brokers: Broker[] }) {
+export function BrokersTable({ brokers, startNumber }: { brokers: Broker[]; startNumber: number }) {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'active' | 'deleted' | 'hidden'>('all');
@@ -109,7 +109,7 @@ export function BrokersTable({ brokers }: { brokers: Broker[] }) {
         <table className="w-full text-sm">
           <thead>
             <tr style={{ background: '#0A1220', color: '#7A8FA6' }}>
-              <th className="text-left p-3">Rank</th>
+              <th className="text-left p-3">#</th>
               <th className="text-left p-3">Name</th>
               <th className="text-left p-3">Score</th>
               <th className="text-left p-3">Tier</th>
@@ -128,7 +128,7 @@ export function BrokersTable({ brokers }: { brokers: Broker[] }) {
             ) : (
               filtered.map((b, index) => (
                 <tr key={b.uuid} style={{ borderTop: '1px solid #1A2E45' }}>
-                  <td className="p-3">{index + 1}</td>
+                  <td className="p-3" style={{ color: '#7A8FA6' }}>{startNumber + index}</td>
                   <td className="p-3 font-medium">{b.name}</td>
                   <td className="p-3">
                     {b.score !== null && b.score !== undefined

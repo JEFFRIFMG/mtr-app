@@ -18,6 +18,38 @@ export async function getAllBrokersAdmin(): Promise<Broker[]> {
   return data as Broker[];
 }
 
+/**
+ * Ambil broker dengan pagination (buat admin view).
+ */
+export async function getBrokersAdminPaginated(
+  page: number,
+  perPage: number
+): Promise<{ brokers: Broker[]; total: number }> {
+  const supabase = createClient();
+
+  const from = (page - 1) * perPage;
+  const to = from + perPage - 1;
+
+  // Count total
+  const { count } = await supabase
+    .from('brokers')
+    .select('*', { count: 'exact', head: true });
+
+  // Fetch paginated
+  const { data, error } = await supabase
+    .from('brokers')
+    .select('*')
+    .order('rank', { ascending: true, nullsFirst: false })
+    .range(from, to);
+
+  if (error) {
+    console.error('Admin paginated fetch error:', error.message);
+    return { brokers: [], total: 0 };
+  }
+
+  return { brokers: data as Broker[], total: count || 0 };
+}
+
 export async function getBrokerByUuid(uuid: string): Promise<Broker | null> {
   const supabase = createClient();
   const { data, error } = await supabase
