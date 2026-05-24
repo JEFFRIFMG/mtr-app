@@ -190,7 +190,7 @@ export function ReviewsFilters({
       </div>
 
       {/* Row 2: Status + Source pills */}
-      <div className="flex flex-wrap gap-4 items-center">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <FilterGroup
           label="Status"
           current={currentStatus}
