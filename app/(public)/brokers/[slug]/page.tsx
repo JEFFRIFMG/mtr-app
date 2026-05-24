@@ -4,6 +4,8 @@ import DOMPurify from 'isomorphic-dompurify';
 import { getBrokerBySlug, getBrokerReview } from '@/lib/brokers/queries';
 import BrokerDetailCard from '@/components/broker/BrokerDetailCard';
 import '@/styles/broker-review.css';
+import BrokerReviews from '@/components/broker/BrokerReviews';
+import { getApprovedReviews, calculateReviewStats } from '@/lib/brokers/reviews';
 
 export const revalidate = 3600;
 
@@ -36,6 +38,8 @@ export default async function BrokerDetailPage({ params }: Props) {
   }
 
   const review = await getBrokerReview(broker.uuid);
+  const approvedReviews = await getApprovedReviews(broker.uuid);
+  const reviewStats = calculateReviewStats(approvedReviews);
 
   // Sanitize HTML untuk prevent XSS, tetep allow tag editorial standard
   const sanitizedHtml = review?.htmlContent
@@ -68,6 +72,15 @@ export default async function BrokerDetailPage({ params }: Props) {
   return (
     <div className="py-8">
       <BrokerDetailCard broker={broker} />
+
+      <div className="mt-12 max-w-310 mx-auto">
+        <BrokerReviews
+          brokerUuid={broker.uuid}
+          brokerName={broker.name}
+          initialReviews={approvedReviews}
+          initialStats={reviewStats}
+        />
+      </div>
 
       <div className="mt-12 max-w-310 mx-auto">
         {sanitizedHtml ? (
