@@ -279,14 +279,13 @@ export default function BrokerReviews({ brokerUuid, brokerName, initialReviews, 
           <div className="mb-6">
             <h3 className="font-semibold text-white text-lg mb-3">All Reviews ({reviews.length})</h3>
             
-            {/* KUNCI: Tambah w-full dan justify-between biar mentok kiri & mentok kanan */}
-            <div className="flex flex-wrap items-center justify-between gap-4 w-full">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 w-full">
               
-              {/* Dropdown Sort - Tetap di Kiri */}
+              {/* Dropdown Sort - Full w di mobile, auto di desktop */}
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-                className="bg-[#0A1220] border border-[rgba(255,255,255,0.12)] text-white text-sm rounded-md px-3 py-1.5 focus:outline-none focus:border-[#00A86B] min-w-[130px]"
+                className="bg-[#0A1220] border border-[rgba(255,255,255,0.12)] text-white text-sm rounded-md px-3 py-2 lg:py-1.5 focus:outline-none focus:border-[#00A86B] w-full lg:w-auto min-w-[130px]"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -294,15 +293,15 @@ export default function BrokerReviews({ brokerUuid, brokerName, initialReviews, 
                 <option value="lowest">Lowest Rating</option>
               </select>
 
-              {/* Filter Buttons - Otomatis kelempar Mentok Kanan */}
-              <div className="flex items-center justify-end gap-1.5 flex-wrap">
+              {/* Filter Buttons - Grid 3 kolom di Mobile, Flex 1 Baris (Nowrap) Mentok Kanan di Desktop */}
+              <div className="grid grid-cols-3 lg:flex lg:flex-nowrap items-center lg:justify-end gap-1.5 w-full lg:w-auto mt-2 lg:mt-0">
                 {/* Tombol All */}
                 <button
                   type="button"
                   onClick={() => setFilterRating(null)}
-                  className={`text-[11px] font-medium px-3 py-1.5 rounded-full border transition whitespace-nowrap ${
+                  className={`flex items-center justify-center text-[11px] font-medium px-2 py-2 lg:px-3 lg:py-1.5 rounded-full border transition whitespace-nowrap ${
                     filterRating === null
-                      ? 'bg-[rgba(0,168,107,0.1)] border-[#00A86B] text-[#00A86B]'
+                      ? 'bg-[rgba(0,168,107,0.12)] border-[#00A86B] text-[#00A86B]'
                       : 'bg-[#0A1220] border-[rgba(255,255,255,0.12)] text-[#a9bcde] hover:border-[rgba(255,255,255,0.3)] hover:text-white'
                   }`}
                 >
@@ -317,9 +316,9 @@ export default function BrokerReviews({ brokerUuid, brokerName, initialReviews, 
                       key={star}
                       type="button"
                       onClick={() => setFilterRating(star)}
-                      className={`flex items-center gap-1 text-[11px] font-medium px-2.5 py-1.5 rounded-full border transition whitespace-nowrap ${
+                      className={`flex items-center justify-center gap-1 text-[11px] font-medium px-1 py-2 lg:px-2.5 lg:py-1.5 rounded-full border transition whitespace-nowrap ${
                         filterRating === star
-                          ? 'bg-[rgba(0,168,107,0.1)] border-[#00A86B] text-white'
+                          ? 'bg-[rgba(0,168,107,0.12)] border-[#00A86B] text-white'
                           : 'bg-[#0A1220] border-[rgba(255,255,255,0.12)] text-[#a9bcde] hover:border-[rgba(255,255,255,0.3)] hover:text-white'
                       }`}
                     >
