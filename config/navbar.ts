@@ -3,7 +3,7 @@ import type { NavbarConfig } from "@/types/navbar";
 export const navbarConfig: NavbarConfig = {
   brand: {
     logoSrc:
-      "https://mytradingreviews.com/wp-content/uploads/2026/03/Logo-My-Trading-Reviews.svg",
+      "https://ibouiklqlhfbzypecbqm.supabase.co/storage/v1/object/public/assets/Logo-My-Trading-Reviews.svg",
     logoAlt: "My Trading Reviews Logo",
     logoHref: "/",
   },

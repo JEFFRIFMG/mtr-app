@@ -72,7 +72,7 @@ export const footerConfig: FooterConfig = {
 
   brand: {
     logoSrc:
-      "https://mytradingreviews.com/wp-content/uploads/2026/03/Logo-My-Trading-Reviews.svg",
+      "https://ibouiklqlhfbzypecbqm.supabase.co/storage/v1/object/public/assets/Logo-My-Trading-Reviews.svg",
     logoAlt: "",
     logoHref: "https://mytradingreviews.com",
     logoWidth: 168,
