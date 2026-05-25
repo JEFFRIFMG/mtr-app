@@ -140,7 +140,36 @@
      row 2: 3 dropdowns sejajar
      row 3: sort buttons + count label */
   .mtr-filters { padding: 10px 12px; flex-wrap: wrap; gap: 6px; }
-  .mtr-search-wrap { flex: 1 1 100%; width: 100%; }
+  /* 1. SEARCH & REGION SEJAJAR BAGI RATA */
+  .mtr-search-wrap { 
+    flex: 1 1 0; 
+    min-width: 0; 
+  }
+
+  /* 2. BUNGKUS TOMBOL SORT */
+  .mtr-sort-group { 
+    flex: 1 1 100%; 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 6px; /* Jarak antar tombol */
+  }
+
+  /* 3. KUNCI UTAMA: PAKSA SEMUA TOMBOL MELAR NGISI EMPTY SPACE */
+  .mtr-sort-group > button,
+  .mtr-sort-group > a,
+  .mtr-sort-group > div { 
+    flex: 1 1 auto; /* Ini yang bikin tombolnya stretch / justify otomatis */
+    justify-content: center; /* Teks di dalam tombol jadi di tengah */
+    text-align: center;
+  }
+
+  /* 4. TEKS BROKER RAPI DI BAWAH RATA KANAN */
+  .mtr-count-label { 
+    flex: 1 1 100%; 
+    display: flex; 
+    justify-content: flex-end; 
+    margin-top: 4px; 
+  }
   .mtr-native-select {
     flex: 1 1 0;
     width: 0;
@@ -151,8 +180,6 @@
     overflow: hidden;
     white-space: nowrap;
   }
-  .mtr-sort-group { flex: 0 1 auto; justify-content: flex-start; }
-  .mtr-count-label { flex: 1 1 auto; display: flex; align-items: center; justify-content: flex-end; }
 
   .mtr-pagination-wrap { flex-direction: row; gap: 6px; padding: 8px 10px; }
   .mtr-pagination-info { display: none; }
