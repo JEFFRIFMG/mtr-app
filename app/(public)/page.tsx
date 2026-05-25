@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { getBrokers } from '@/lib/brokers/queries';
 import BrokerRankings from '@/components/ranking/BrokerRankings';
 import HomepageBlogSection from '@/components/blog/HomepageBlogSection';
+import HomepageFAQ from '@/components/faq/HomepageFAQ';
 
 // ISR revalidation: 1 jam (3600 detik)
 export const revalidate = 3600;
@@ -22,9 +23,8 @@ export default async function HomePage() {
     <main className="w-full">
       {/* Client Component untuk handle interaksi filter, search, & pagination */}
       <BrokerRankings initialBrokers={brokers} />
-
-      {/* Latest blog posts section */}
       <HomepageBlogSection />
+      <HomepageFAQ />
     </main>
   );
 }
