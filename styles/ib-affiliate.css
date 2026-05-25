@@ -28,13 +28,13 @@
 
 /* HERO CARDS */
 #mtr-ib-root .mtr-ib-hero-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-#mtr-ib-root .mtr-ib-hero-card { display:flex; align-items:center; gap:14px; padding:18px 20px; border-radius:14px; border:1px solid var(--mtr-green-border); background:linear-gradient(145deg,#051b11 0%,#030f0a 100%); }
+#mtr-ib-root .mtr-ib-hero-card { display:flex; align-items:center; gap:14px; padding:18px 20px; border-radius:14px; border:1px solid var(--mtr-green-border); background:#0F1825; }
 #mtr-ib-root .mtr-ib-hero-icon { width:44px; height:44px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 40% 40%,var(--mtr-green-border) 0%,var(--mtr-green-glow) 100%); border:1px solid var(--mtr-green-border); }
 #mtr-ib-root .mtr-ib-hero-card-stat { font-size:1rem; font-weight:700; color:#fff; line-height:1.2; }
 #mtr-ib-root .mtr-ib-hero-card-label { font-size:0.58rem; font-weight:700; color:var(--mtr-ib-muted); letter-spacing:0.1em; text-transform:uppercase; margin-top:2px; }
 
 /* STATS STRIP */
-#mtr-ib-root .mtr-ib-stats-strip { display:grid; grid-template-columns:repeat(4,1fr); margin-top:24px; border-radius:var(--mtr-ib-radius); border:1px solid var(--mtr-ib-border); background:rgba(255,255,255,0.015); }
+#mtr-ib-root .mtr-ib-stats-strip { display:grid; grid-template-columns:repeat(4,1fr); margin-top:24px; border-radius:var(--mtr-ib-radius); border:1px solid var(--mtr-ib-border); background:#0F1825; }
 #mtr-ib-root .mtr-ib-stat-cell { display:flex; align-items:flex-start; gap:10px; padding:16px 18px; min-width:0; }
 #mtr-ib-root .mtr-ib-stat-cell:not(:last-child) { border-right:1px solid var(--mtr-ib-border-lt); }
 #mtr-ib-root .mtr-ib-stat-icon { width:36px; height:36px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 40% 40%,var(--mtr-green-border) 0%,var(--mtr-green-glow) 100%); border:1px solid var(--mtr-green-border); }
@@ -112,8 +112,8 @@
 /* COMPARISON */
 #mtr-ib-root .mtr-ib-comparison { padding:0 0 48px; }
 #mtr-ib-root .mtr-ib-compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-#mtr-ib-root .mtr-ib-compare-card { border-radius:var(--mtr-ib-radius); padding:28px 32px; background:linear-gradient(145deg,#0d1a16 0%,#080f0c 100%); border:1px solid var(--mtr-ib-border); }
-#mtr-ib-root .mtr-ib-compare-card--mtr { background:linear-gradient(145deg,#051a11 0%,#03100a 100%); border-color:var(--mtr-green-border); box-shadow:0 0 40px var(--mtr-green-glow); position:relative; }
+#mtr-ib-root .mtr-ib-compare-card { border-radius:var(--mtr-ib-radius); padding:28px 32px; background: #0F1825; border:1px solid var(--mtr-ib-border); }
+#mtr-ib-root .mtr-ib-compare-card--mtr { background: #0F1825; border-color:var(--mtr-green-border); box-shadow:0 0 40px var(--mtr-green-glow); position:relative; }
 #mtr-ib-root .mtr-ib-compare-badge { position:absolute; top:20px; right:20px; display:flex; align-items:center; gap:5px; padding:4px 10px; border-radius:8px; border:1px solid var(--mtr-green-border); background:var(--mtr-green-glow); color:var(--mtr-green); font-size:0.68rem; font-weight:700; }
 #mtr-ib-root .mtr-ib-compare-heading { font-size:0.68rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:20px; color:var(--mtr-ib-muted); }
 #mtr-ib-root .mtr-ib-compare-card--mtr .mtr-ib-compare-heading { color:var(--mtr-green); }
@@ -127,8 +127,8 @@
 /* WHY MTR */
 #mtr-ib-root .mtr-ib-why { padding:0 0 48px; }
 #mtr-ib-root .mtr-ib-why-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:36px; }
-#mtr-ib-root .mtr-ib-why-card { border-radius:var(--mtr-ib-radius); padding:22px 20px; display:flex; flex-direction:column; gap:12px; background:linear-gradient(145deg,#0d1a16 0%,#080f0c 100%); border:1px solid var(--mtr-ib-border); }
-#mtr-ib-root .mtr-ib-why-card--hl { background:linear-gradient(145deg,#051a11 0%,#03100a 100%); border-color:var(--mtr-green-border); box-shadow:0 0 28px var(--mtr-green-glow); }
+#mtr-ib-root .mtr-ib-why-card { border-radius:var(--mtr-ib-radius); padding:22px 20px; display:flex; flex-direction:column; gap:12px; background: #0F1825; border:1px solid var(--mtr-ib-border); }
+#mtr-ib-root .mtr-ib-why-card--hl { background: #0F1825; border-color:var(--mtr-green-border); box-shadow:0 0 28px var(--mtr-green-glow); }
 
 #mtr-ib-root .mtr-ib-why-top { display:flex; align-items:center; gap:12px; }
 
@@ -143,14 +143,14 @@
 /* WHO ITS FOR */
 #mtr-ib-root .mtr-ib-who { padding:0 0 48px; }
 #mtr-ib-root .mtr-ib-who-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
-#mtr-ib-root .mtr-ib-who-card { border-radius:var(--mtr-ib-radius); padding:22px 20px; display:flex; flex-direction:column; gap:10px; background:linear-gradient(145deg,#0d1a16 0%,#080f0c 100%); border:1px solid var(--mtr-ib-border); }
+#mtr-ib-root .mtr-ib-who-card { border-radius:var(--mtr-ib-radius); padding:22px 20px; display:flex; flex-direction:column; gap:10px; background: #0F1825; border:1px solid var(--mtr-ib-border); }
 #mtr-ib-root .mtr-ib-who-top { display:flex; align-items:center; gap:12px; }
 #mtr-ib-root .mtr-ib-who-icon { width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; background:linear-gradient(145deg,#0b1c15,#06120e); border:1px solid rgba(255,255,255,0.08); }
 #mtr-ib-root .mtr-ib-who-title { font-size:0.95rem; font-weight:700; color:#fff; }
 #mtr-ib-root .mtr-ib-who-desc { font-size:0.82rem; color:var(--mtr-ib-muted); line-height:1.6; }
 
 /* FOOTER CTA */
-#mtr-ib-root .mtr-ib-footer-cta { border-radius:20px; padding:48px 40px; text-align:center; border:1px solid var(--mtr-green-border); background:linear-gradient(145deg,#051a11 0%,#03100a 60%,#020a06 100%); box-shadow:0 0 60px var(--mtr-green-glow); margin-bottom:24px; }
+#mtr-ib-root .mtr-ib-footer-cta { border-radius:20px; padding:48px 40px; text-align:center; border:1px solid var(--mtr-green-border); background: #0F1825; box-shadow:0 0 60px var(--mtr-green-glow); margin-bottom:24px; }
 #mtr-ib-root .mtr-ib-footer-cta-title { font-size:clamp(1.6rem,3vw,2.4rem); font-weight:800; color:#fff; margin:0 0 14px; }
 #mtr-ib-root .mtr-ib-footer-cta-title .hl { color:var(--mtr-green); }
 #mtr-ib-root .mtr-ib-footer-cta-desc { font-size:0.92rem; color:var(--mtr-ib-muted); max-width:480px; margin:0 auto 28px; line-height:1.7; }

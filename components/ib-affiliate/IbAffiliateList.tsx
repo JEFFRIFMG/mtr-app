@@ -376,54 +376,91 @@ export default function IbAffiliateList({ initialPrograms }: Props) {
         <p className="mtr-ib-section-desc">Not just links and a dashboard. A real commercial relationship.</p>
 
         <div className="mtr-ib-why-grid">
+          
+          {/* Card 1 */}
           <div className="mtr-ib-why-card mtr-ib-why-card--hl">
             <div className="mtr-ib-why-top">
-              <div className="mtr-ib-why-icon">🏛️</div>
+              <div className="mtr-ib-why-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--mtr-green)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </div>
               <div className="mtr-ib-why-title">Institutional position</div>
             </div>
             <div className="mtr-ib-why-desc">We aggregate volume across our partner network, giving us negotiating power of a large institution - and pass it to you.</div>
             <div className="mtr-ib-why-stat">
-              <span style={{flexShrink:0, marginTop:'2px'}}>📈</span>
+              <span style={{flexShrink:0, marginTop:'2px'}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mtr-green)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+              </span>
               <span className="mtr-ib-why-stat-text">Up to 50% rev share vs industry avg 30%</span>
             </div>
           </div>
+
+          {/* Card 2 */}
           <div className="mtr-ib-why-card">
             <div className="mtr-ib-why-top">
-              <div className="mtr-ib-why-icon">⚡</div>
+              <div className="mtr-ib-why-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--mtr-green)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+              </div>
               <div className="mtr-ib-why-title">One deal, all brokers</div>
             </div>
             <div className="mtr-ib-why-desc">Apply once and get access to every broker in our network. No separate contracts, no separate negotiations.</div>
             <div className="mtr-ib-why-stat">
-              <span style={{flexShrink:0, marginTop:'2px'}}>👥</span>
+              <span style={{flexShrink:0, marginTop:'2px'}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mtr-green)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </span>
               <span className="mtr-ib-why-stat-text">10+ brokers, single onboarding</span>
             </div>
           </div>
+
+          {/* Card 3 */}
           <div className="mtr-ib-why-card">
             <div className="mtr-ib-why-top">
-              <div className="mtr-ib-why-icon">📈</div>
+              <div className="mtr-ib-why-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--mtr-green)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+                </svg>
+              </div>
               <div className="mtr-ib-why-title">Rates that grow with you</div>
             </div>
             <div className="mtr-ib-why-desc">As your volume scales, your rates automatically improve. No chasing your account manager.</div>
             <div className="mtr-ib-why-stat">
-              <span style={{flexShrink:0, marginTop:'2px'}}>📊</span>
+              <span style={{flexShrink:0, marginTop:'2px'}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mtr-green)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg>
+              </span>
               <span className="mtr-ib-why-stat-text">Tiered upgrades, no manual renewal</span>
             </div>
           </div>
+
+          {/* Card 4 */}
           <div className="mtr-ib-why-card">
             <div className="mtr-ib-why-top">
-              <div className="mtr-ib-why-icon">🎯</div>
+              <div className="mtr-ib-why-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--mtr-green)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+                </svg>
+              </div>
               <div className="mtr-ib-why-title">Matched to your audience</div>
             </div>
             <div className="mtr-ib-why-desc">We match you with the broker that fits your traffic - by region, trader type, and average deposit size.</div>
             <div className="mtr-ib-why-stat">
-              <span style={{flexShrink:0, marginTop:'2px'}}>👤</span>
+              <span style={{flexShrink:0, marginTop:'2px'}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mtr-green)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
               <span className="mtr-ib-why-stat-text">Region + audience optimised</span>
             </div>
           </div>
         </div>
 
         <div className="mtr-ib-why-cta">
-          <span style={{fontSize:'1.1rem'}}>📈</span>
+          <span style={{ display: 'flex', alignItems: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--mtr-green)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+              <polyline points="16 7 22 7 22 13" />
+            </svg>
+          </span>
           <span style={{fontSize:'1rem', fontWeight:600, color:'#fff'}}>Start earning with better rates today</span>
           <span style={{color:'var(--mtr-green)', fontSize:'1.2rem', fontWeight:700}}>→</span>
         </div>
@@ -436,30 +473,54 @@ export default function IbAffiliateList({ initialPrograms }: Props) {
         <p className="mtr-ib-section-desc">Institutional rates from day one - no volume required to get started.</p>
 
         <div className="mtr-ib-who-grid">
+          
+          {/* Card 1: Signal providers */}
           <div className="mtr-ib-who-card">
             <div className="mtr-ib-who-top">
-              <div className="mtr-ib-who-icon">📡</div>
+              <div className="mtr-ib-who-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--mtr-green)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 11a9 9 0 0 1 9 9" /><path d="M4 4a16 16 0 0 1 16 16" /><circle cx="5" cy="19" r="1" />
+                </svg>
+              </div>
               <div className="mtr-ib-who-title">Signal providers</div>
             </div>
             <div className="mtr-ib-who-desc">Turn your followers into recurring rebate income on every lot they trade.</div>
           </div>
+
+          {/* Card 2: Trading academies */}
           <div className="mtr-ib-who-card">
             <div className="mtr-ib-who-top">
-              <div className="mtr-ib-who-icon">🎓</div>
+              <div className="mtr-ib-who-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--mtr-green)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" />
+                </svg>
+              </div>
               <div className="mtr-ib-who-title">Trading academies</div>
             </div>
             <div className="mtr-ib-who-desc">Get paid institutional rates when your students sign up through your link.</div>
           </div>
+
+          {/* Card 3: Content creators */}
           <div className="mtr-ib-who-card">
             <div className="mtr-ib-who-top">
-              <div className="mtr-ib-who-icon">✍️</div>
+              <div className="mtr-ib-who-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--mtr-green)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                </svg>
+              </div>
               <div className="mtr-ib-who-title">Content creators</div>
             </div>
             <div className="mtr-ib-who-desc">YouTube, TikTok, newsletters. Monetise your audience with deals they can't get direct.</div>
           </div>
+
+          {/* Card 4: New & mid-level IBs */}
           <div className="mtr-ib-who-card">
             <div className="mtr-ib-who-top">
-              <div className="mtr-ib-who-icon">🤝</div>
+              <div className="mtr-ib-who-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--mtr-green)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </div>
               <div className="mtr-ib-who-title">New &amp; mid-level IBs</div>
             </div>
             <div className="mtr-ib-who-desc">Don't have the volume for institutional rates yet? With MTR you get them from day one.</div>
@@ -479,11 +540,14 @@ export default function IbAffiliateList({ initialPrograms }: Props) {
             View broker deals ↗
           </a>
           <a href="#" className="mtr-ib-btn-secondary">
-            Talk to the team 💬
+            Talk to the team
+            {/* REVISI: Emoji chat diganti jadi SVG Icon */}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            </svg>
           </a>
         </div>
       </div>
-
     </div>
   );
 }
