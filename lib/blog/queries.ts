@@ -48,13 +48,6 @@ const DETAIL_PROJECTION = `
   excludedFromPages
 `;
 
-/**
- * Page-aware exclusion filter.
- * Excludes post if:
- *   1. pageSlug in post.excludedFromPages, OR
- *   2. ALL categories of post have pageSlug in their excludedFromPages
- *      (post is visible if ANY category does NOT exclude this page)
- */
 const pageFilter = (pageSlug?: string) => {
   if (!pageSlug) return '';
   return `&& !($pageSlug in coalesce(excludedFromPages, []))
@@ -93,19 +86,25 @@ export async function getAllBlogSlugs(): Promise<string[]> {
   }
 }
 
-// === Posts for a specific page ===
+// === Posts for a specific page (with offset + limit support) ===
 export async function getBlogPostsForPage(
   pageSlug: string,
-  limit?: number
+  limit?: number,
+  offset = 0
 ): Promise<BlogPostListItem[]> {
   try {
-    const limitClause = limit ? `[0...$limit]` : '';
+    const sliceClause = limit
+      ? `[$offset...$end]`
+      : '';
     const params: Record<string, unknown> = { pageSlug };
-    if (limit) params.limit = limit;
+    if (limit) {
+      params.offset = offset;
+      params.end = offset + limit;
+    }
 
     const posts = await client.fetch<BlogPostListItem[]>(
       `*[_type == "blogPost" && status == "published" ${pageFilter(pageSlug)}]
-        | order(publishedAt desc)${limitClause}{
+        | order(publishedAt desc)${sliceClause}{
           ${LIST_PROJECTION}
         }`,
       params,
@@ -118,12 +117,25 @@ export async function getBlogPostsForPage(
   }
 }
 
+// === Count posts for page (for load-more visibility) ===
+export async function getBlogPostsCountForPage(pageSlug: string): Promise<number> {
+  try {
+    const count = await client.fetch<number>(
+      `count(*[_type == "blogPost" && status == "published" ${pageFilter(pageSlug)}])`,
+      { pageSlug },
+      { cache: 'no-store' }
+    );
+    return count || 0;
+  } catch (e) {
+    console.error('getBlogPostsCountForPage error:', e);
+    return 0;
+  }
+}
+
 /**
  * Resolve a category slug to a list of category IDs that match:
- * - The category itself (if exists)
+ * - The category itself, OR
  * - All children whose parent.slug.current === this slug
- *
- * Returns [] if no match found.
  */
 async function resolveCategoryIds(categorySlug: string): Promise<string[]> {
   try {
@@ -142,28 +154,32 @@ async function resolveCategoryIds(categorySlug: string): Promise<string[]> {
   }
 }
 
-// === Posts by category slug (parent-aware, 2-step) ===
+// === Posts by category slug (parent-aware, with offset + limit) ===
 export async function getBlogPostsByCategorySlug(
   categorySlug: string,
   pageSlug?: string,
-  limit?: number
+  limit?: number,
+  offset = 0
 ): Promise<BlogPostListItem[]> {
   try {
-    // Step 1: resolve category slug to list of IDs (self + children if parent)
     const categoryIds = await resolveCategoryIds(categorySlug);
     if (categoryIds.length === 0) return [];
 
-    // Step 2: fetch posts whose categories intersect with these IDs
-    const limitClause = limit ? `[0...$limit]` : '';
+    const sliceClause = limit
+      ? `[$offset...$end]`
+      : '';
     const params: Record<string, unknown> = { categoryIds };
     if (pageSlug) params.pageSlug = pageSlug;
-    if (limit) params.limit = limit;
+    if (limit) {
+      params.offset = offset;
+      params.end = offset + limit;
+    }
 
     const posts = await client.fetch<BlogPostListItem[]>(
       `*[_type == "blogPost" && status == "published"
         ${pageFilter(pageSlug)}
         && count((categories[]._ref)[@ in $categoryIds]) > 0]
-        | order(publishedAt desc)${limitClause}{
+        | order(publishedAt desc)${sliceClause}{
           ${LIST_PROJECTION}
         }`,
       params,
@@ -173,6 +189,32 @@ export async function getBlogPostsByCategorySlug(
   } catch (e) {
     console.error('getBlogPostsByCategorySlug error:', e);
     return [];
+  }
+}
+
+// === Count posts by category slug ===
+export async function getBlogPostsCountByCategorySlug(
+  categorySlug: string,
+  pageSlug?: string
+): Promise<number> {
+  try {
+    const categoryIds = await resolveCategoryIds(categorySlug);
+    if (categoryIds.length === 0) return 0;
+
+    const params: Record<string, unknown> = { categoryIds };
+    if (pageSlug) params.pageSlug = pageSlug;
+
+    const count = await client.fetch<number>(
+      `count(*[_type == "blogPost" && status == "published"
+        ${pageFilter(pageSlug)}
+        && count((categories[]._ref)[@ in $categoryIds]) > 0])`,
+      params,
+      { cache: 'no-store' }
+    );
+    return count || 0;
+  } catch (e) {
+    console.error('getBlogPostsCountByCategorySlug error:', e);
+    return 0;
   }
 }
 
@@ -246,7 +288,7 @@ export async function getAllBlogCategories(): Promise<BlogCategory[]> {
   }
 }
 
-// === Category groups for filter tabs (page-aware) ===
+// === Category groups for filter tabs ===
 export async function getBlogCategoryGroups(pageSlug?: string): Promise<BlogCategoryGroup[]> {
   const all = await getAllBlogCategories();
 
@@ -259,22 +301,4 @@ export async function getBlogCategoryGroups(pageSlug?: string): Promise<BlogCate
     main,
     children: visible.filter((c) => c.parent?._id === main._id),
   }));
-}
-
-// === Total count ===
-export async function getBlogPostsCount(pageSlug?: string): Promise<number> {
-  try {
-    const params: Record<string, unknown> = {};
-    if (pageSlug) params.pageSlug = pageSlug;
-
-    const count = await client.fetch<number>(
-      `count(*[_type == "blogPost" && status == "published" ${pageFilter(pageSlug)}])`,
-      params,
-      { cache: 'no-store' }
-    );
-    return count || 0;
-  } catch (e) {
-    console.error('getBlogPostsCount error:', e);
-    return 0;
-  }
 }

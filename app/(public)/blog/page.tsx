@@ -2,13 +2,16 @@ import { Suspense } from 'react';
 import {
   getBlogPostsForPage,
   getBlogPostsByCategorySlug,
+  getBlogPostsCountForPage,
+  getBlogPostsCountByCategorySlug,
   getBlogCategoryGroups,
 } from '@/lib/blog/queries';
-import BlogList from '@/components/blog/BlogList';
+import BlogLoadMore from '@/components/blog/BlogLoadMore';
 import BlogFilterTabs from '@/components/blog/BlogFilterTabs';
 import '@/styles/blog-list.css';
 
 const PAGE_SLUG = 'blog';
+const INITIAL_BATCH = 6;
 
 export const revalidate = 60;
 
@@ -27,10 +30,13 @@ export default async function BlogListPage({ searchParams }: PageProps) {
   const { category } = await searchParams;
   const categorySlug = category && category !== 'all' ? category : undefined;
 
-  const [posts, groups] = await Promise.all([
+  const [posts, totalCount, groups] = await Promise.all([
     categorySlug
-      ? getBlogPostsByCategorySlug(categorySlug, PAGE_SLUG)
-      : getBlogPostsForPage(PAGE_SLUG),
+      ? getBlogPostsByCategorySlug(categorySlug, PAGE_SLUG, INITIAL_BATCH, 0)
+      : getBlogPostsForPage(PAGE_SLUG, INITIAL_BATCH, 0),
+    categorySlug
+      ? getBlogPostsCountByCategorySlug(categorySlug, PAGE_SLUG)
+      : getBlogPostsCountForPage(PAGE_SLUG),
     getBlogCategoryGroups(PAGE_SLUG),
   ]);
 
@@ -48,11 +54,15 @@ export default async function BlogListPage({ searchParams }: PageProps) {
         <BlogFilterTabs groups={groups} />
       </Suspense>
 
-      <BlogList
-        posts={posts}
+      <BlogLoadMore
+        key={categorySlug || 'all'}
+        initialPosts={posts}
+        totalCount={totalCount}
+        categorySlug={categorySlug}
+        batchSize={INITIAL_BATCH}
         emptyMessage={
           categorySlug
-            ? `No posts in this category yet.`
+            ? 'No posts in this category yet.'
             : 'No blog posts yet.'
         }
       />

@@ -74,6 +74,9 @@
 │   │   │   ├── [submissions]
 │   │   │   │   ├── [[uuid]]
 │   │   │   │   ├── route.ts
+│   │   ├── [blog]
+│   │   │   ├── [load-more]
+│   │   │   │   ├── route.ts
 │   │   ├── [brokers]
 │   │   │   ├── [list]
 │   │   │   │   ├── route.ts
@@ -102,6 +105,8 @@
 │   │   ├── BlogComments.tsx
 │   │   ├── BlogFilterTabs.tsx
 │   │   ├── BlogList.tsx
+│   │   ├── BlogLoadMore.tsx
+│   │   ├── HomepageBlogSection.tsx
 │   │   ├── LatestPostsSidebar.tsx
 │   │   ├── RelatedPosts.tsx
 │   │   ├── ShareSticky.tsx
@@ -173,6 +178,7 @@
 │   ├── broker-detail.css
 │   ├── broker-review.css
 │   ├── comparison.css
+│   ├── homepage-blog.css
 │   ├── homepage.css
 │   ├── ib-affiliate.css
 │   ├── inquiry-forms.css

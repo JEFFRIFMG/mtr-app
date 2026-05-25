@@ -1,0 +1,76 @@
+/* ============================================
+   HOMEPAGE BLOG SECTION ("Our Insight")
+   Reuses .blog-card styling from blog-list.css
+   ============================================ */
+
+.homepage-blog {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 4rem 1.25rem;
+  font-family: 'Gantari', 'Segoe UI', Arial, sans-serif;
+  color: #E8EDF4;
+}
+
+.homepage-blog__header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.homepage-blog__title {
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 0.75rem;
+  line-height: 1.15;
+}
+
+.homepage-blog__title-accent {
+  color: #00A86B;
+}
+
+.homepage-blog__subtitle {
+  font-size: 1rem;
+  color: #a9bcde;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.homepage-blog__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 2.5rem;
+}
+
+.homepage-blog__cta {
+  display: flex;
+  justify-content: center;
+}
+
+.homepage-blog__cta-button {
+  display: inline-block;
+  padding: 0.85rem 2rem;
+  border-radius: 8px;
+  border: 1px solid #FFFFFF33;
+  background: transparent;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.homepage-blog__cta-button:hover {
+  border-color: #00A86B;
+  color: #00A86B;
+  background: rgba(0, 168, 107, 0.08);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .homepage-blog__grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .homepage-blog { padding: 3rem 1rem; }
+  .homepage-blog__grid { grid-template-columns: 1fr; }
+}
