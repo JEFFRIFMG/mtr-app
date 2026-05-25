@@ -54,7 +54,7 @@ export default function AwardsPage() {
           </div>
         </div>
         <div className="aw-hero-visual">
-          <img className="aw-trophy-img" src="https://mytradingreviews.com/wp-content/uploads/2026/05/MTR-AWARD-BG.png" alt="MTR Broker Awards 2026 Trophy"/>
+          <img className="aw-trophy-img" src="https://ibouiklqlhfbzypecbqm.supabase.co/storage/v1/object/public/mtr-hero-banner/mtr-hero-banner.png" alt="MTR Broker Awards 2026 Trophy"/>
         </div>
       </section>
 
