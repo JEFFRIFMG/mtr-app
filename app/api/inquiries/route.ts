@@ -47,7 +47,7 @@ export async function POST(req: Request) {
     // 'onboarding@resend.dev' dipakai buat testing awal karena domain lo belum diverifikasi di Resend
     await resend.emails.send({
       from: 'MTR Notifications <onboarding@resend.dev>', 
-      to: 'ja@finmediagroup.com',
+      to: 'af@finmediagroup.com',
       subject: `[MTR] New ${form_type.toUpperCase()} Form Submission from ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
