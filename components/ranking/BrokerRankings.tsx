@@ -304,6 +304,7 @@ export default function BrokerRankings({ initialBrokers }: Props) {
   const currentYear = new Date().getFullYear();
   const currentMonthYear = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   const retailCount = initialBrokers.filter(r => (r.status || '') === 'legitimate').length;
+  const dynamicBrokerCount = Math.floor(retailCount / 10) * 10;
   const uniqueCountries = new Set(initialBrokers.map(r => r.hq_country).filter(Boolean)).size;
 
   return (
@@ -311,7 +312,7 @@ export default function BrokerRankings({ initialBrokers }: Props) {
       <div className="mtr-main-hero">
         <div className="mtr-hero-badge">✦ Updated <span>{currentMonthYear}</span></div>
         <h1>Global Broker Rankings <span>{currentYear}</span></h1>
-        <p>Independent rankings of 590+ regulated brokers worldwide. Compare regulation, spreads, platforms and fees. No paid placements.</p>
+        <p>Independent rankings of {dynamicBrokerCount}+ regulated brokers worldwide. Compare regulation, spreads, platforms and fees.</p>
         <div className="mtr-hero-stats">
           <div className="mtr-hero-stat">
             <span className="mtr-hero-stat-num"><b>{retailCount}</b></span>
