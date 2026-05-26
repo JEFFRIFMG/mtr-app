@@ -56,8 +56,8 @@ export const footerConfig: FooterConfig = {
     "Compare broker reviews, awards, rankings, and latest bonuses.",
 
   ctas: [
-    { label: "Get Listed", href: "#", variant: "primary" },
-    { label: "See Broker", href: "#", variant: "outline" },
+    { label: "Get Listed", href: "/get-listed", variant: "primary" },
+    { label: "See Broker", href: "/ranking", variant: "outline" },
   ],
 
   copyright: "@ 2026 My Trading Reviews. All rights reserved.",
