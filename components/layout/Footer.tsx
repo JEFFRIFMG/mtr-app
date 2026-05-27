@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { footerConfig } from "@/config/footer";
 import type { SocialPlatform } from "@/types/footer";
@@ -46,6 +49,45 @@ export default function Footer() {
     brand,
   } = footerConfig;
 
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email) return;
+
+    setStatus("loading");
+    setMessage("");
+
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Subscription failed");
+      }
+
+      setStatus("success");
+      setMessage("Thanks for subscribing!");
+      setEmail("");
+
+      // Reset success message after 4 seconds
+      setTimeout(() => {
+        setStatus("idle");
+        setMessage("");
+      }, 4000);
+    } catch (err: any) {
+      setStatus("error");
+      setMessage(err.message || "Something went wrong");
+    }
+  }
+
   return (
     <footer className="w-full bg-transparent pt-16 pb-8 border-t border-[rgba(26,46,69,0.5)] mt-10 font-[Gantari,sans-serif]">
       <div className="max-w-[1140px] mx-auto px-4 flex flex-col gap-12">
@@ -63,40 +105,46 @@ export default function Footer() {
           </p>
 
           <form
-            method="post"
+            onSubmit={handleSubmit}
             name={newsletter.formName}
             aria-label={newsletter.formName}
             className="flex w-full max-w-[420px] mt-2 gap-3"
           >
-            {newsletter.hiddenFields.map((field) => (
-              <input
-                key={field.name}
-                type="hidden"
-                name={field.name}
-                value={field.value}
-              />
-            ))}
-
             <label htmlFor="form-field-email" className="sr-only">
               Email
             </label>
             <input
               type="email"
               id="form-field-email"
-              name="form_fields[email]"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder={newsletter.placeholder}
               required
+              disabled={status === "loading"}
               size={1}
-              className="flex-1 px-4 py-3 rounded-md bg-[var(--mtr-inner)] border border-[var(--mtr-border)] text-white text-sm outline-none transition-colors focus:border-[var(--mtr-green)]"
+              className="flex-1 px-4 py-3 rounded-md bg-[var(--mtr-inner)] border border-[var(--mtr-border)] text-white text-sm outline-none transition-colors focus:border-[var(--mtr-green)] disabled:opacity-60"
             />
             <button
               type="submit"
-              id="subscribe-button"
-              className="px-6 py-3 bg-[var(--mtr-green)] text-white text-sm font-bold rounded-md border-none cursor-pointer transition-colors hover:bg-[var(--mtr-green-dk)]"
+              disabled={status === "loading"}
+              className="px-6 py-3 bg-[var(--mtr-green)] text-white text-sm font-bold rounded-md border-none cursor-pointer transition-colors hover:bg-[var(--mtr-green-dk)] disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {newsletter.submitLabel}
+              {status === "loading" ? "..." : newsletter.submitLabel}
             </button>
           </form>
+
+          {message && (
+            <p
+              className={`text-sm mt-1 ${
+                status === "success"
+                  ? "text-[var(--mtr-green)]"
+                  : "text-red-400"
+              }`}
+            >
+              {message}
+            </p>
+          )}
         </div>
 
         {/* SECTION 2: Middle - Broker, Socials, Legal, CTA */}
