@@ -1,5 +1,5 @@
 export interface IbAffiliate {
-  id: number;
+  uuid: string;
   broker_uuid: string | null;
   rank: number | null;
   ticker: string;

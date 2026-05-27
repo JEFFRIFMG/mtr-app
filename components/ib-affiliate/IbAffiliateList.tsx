@@ -265,7 +265,7 @@ export default function IbAffiliateList({ initialPrograms }: Props) {
                       : MTR_COLORS[i % MTR_COLORS.length];
 
                     return (
-                      <tr key={b.id} className="mtr-ib-row">
+                      <tr key={b.uuid} className="mtr-ib-row">
                         <td className="mtr-ib-td mtr-ib-td--num">{displayNum}</td>
                         <td className="mtr-ib-td mtr-ib-td--broker">
                           <div className="mtr-ib-broker-wrap">
