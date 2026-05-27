@@ -12,8 +12,8 @@ const MTR_COLORS = ['#00A86B','#0066FF','#7B2FBE','#E53E3E','#D69E2E','#0BC5EA',
 export default function IbAffiliateList({ initialPrograms }: Props) {
   // --- Filter & Sort State ---
   const [activeFilter, setActiveFilter] = useState<string>('all');
-  const [sortCol, setSortCol] = useState<string>('cpa');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [sortCol, setSortCol] = useState<string>('rank');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   
   // --- Pagination State (Initial Load di 20) ---
   const [currentPage, setCurrentPage] = useState(1);
