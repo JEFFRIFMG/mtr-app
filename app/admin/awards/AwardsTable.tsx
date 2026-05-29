@@ -31,7 +31,7 @@ function slugify(s: string): string {
 }
 
 // ============================================================================
-// ICON PICKER (reusable component)
+// ICON PICKER
 // ============================================================================
 function IconPicker({
   icons,
@@ -106,27 +106,22 @@ export default function AwardsTable({ initialYear }: Props) {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{ text: string; tone: 'ok' | 'err' } | null>(null);
 
-  // Setup new year
   const [newYearInput, setNewYearInput] = useState<string>('');
   const [sourceYear, setSourceYear] = useState<string>('');
 
-  // Add category modal
   const [showAddModal, setShowAddModal] = useState(false);
   const [addMode, setAddMode] = useState<'pick' | 'create'>('pick');
   const [addCategoryId, setAddCategoryId] = useState<string>('');
-  // Create form
   const [newCatGroup, setNewCatGroup] = useState<string>('');
   const [newCatTitle, setNewCatTitle] = useState<string>('');
   const [newCatDesc, setNewCatDesc] = useState<string>('');
   const [newCatTags, setNewCatTags] = useState<string>('');
   const [newCatIconSvg, setNewCatIconSvg] = useState<string>('');
 
-  // Add group modal
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [newGroupName, setNewGroupName] = useState<string>('');
   const [newGroupIcon, setNewGroupIcon] = useState<string>('');
 
-  // Broker dropdown state per-row
   const [brokerSearchRow, setBrokerSearchRow] = useState<string | null>(null);
   const [brokerQuery, setBrokerQuery] = useState<string>('');
   const [brokerResults, setBrokerResults] = useState<Broker[]>([]);
@@ -164,7 +159,6 @@ export default function AwardsTable({ initialYear }: Props) {
 
   useEffect(() => { fetchAll(year); }, [year, fetchAll]);
 
-  // Filter icons by category for picker convenience
   const groupIcons = useMemo(
     () => iconsMaster.filter((i) => i.category === 'group' || i.category === null),
     [iconsMaster]
@@ -175,17 +169,18 @@ export default function AwardsTable({ initialYear }: Props) {
   );
 
   // ============================================================================
-  // DERIVED
+  // DERIVED — group rows by group_id (sekarang simpan groupId juga)
   // ============================================================================
   const grouped = useMemo(() => {
-    const map = new Map<string, { groupName: string; sortOrder: number; rows: WinnerRow[] }>();
+    const map = new Map<string, { groupId: string; groupName: string; sortOrder: number; rows: WinnerRow[] }>();
     for (const r of rows) {
       const cat = unwrap(r.category);
       const grp = unwrap(cat?.group ?? null);
       const key = grp?.uuid ?? 'unknown';
+      const groupId = grp?.uuid ?? '';
       const groupName = grp?.name ?? 'Unknown';
       const sortOrder = grp?.sort_order ?? 999;
-      if (!map.has(key)) map.set(key, { groupName, sortOrder, rows: [] });
+      if (!map.has(key)) map.set(key, { groupId, groupName, sortOrder, rows: [] });
       map.get(key)!.rows.push(r);
     }
     const arr = Array.from(map.values()).sort((a, b) => a.sortOrder - b.sortOrder);
@@ -245,6 +240,36 @@ export default function AwardsTable({ initialYear }: Props) {
       const res = await fetch(`/api/admin/awards/winners/${winnerUuid}`, { method: 'DELETE' });
       if (!res.ok) { const json = await res.json(); throw new Error(json.error ?? 'Delete failed'); }
       setMsg({ text: `Removed from ${year}`, tone: 'ok' });
+      await fetchAll(year);
+    } catch (e) { setMsg({ text: (e as Error).message, tone: 'err' }); }
+    finally { setLoading(false); }
+  }
+
+  // NEW: bulk remove all categories of a group from this year
+  async function handleRemoveGroupFromYear(groupId: string, groupName: string, count: number) {
+    if (!confirm(
+      `Remove ALL ${count} ${count === 1 ? 'category' : 'categories'} in "${groupName}" from ${year}?\n\n` +
+      `This will delete:\n` +
+      `- ${count} winner row(s) from ${year}\n\n` +
+      `This will NOT affect:\n` +
+      `- Master groups & categories (still available for other years)\n` +
+      `- Data from other years`
+    )) return;
+
+    setLoading(true); setMsg(null);
+    try {
+      const res = await fetch('/api/admin/awards/winners/remove-group', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ group_id: groupId, year }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Remove group failed');
+
+      setMsg({
+        text: `Removed group "${groupName}" from ${year} (${json.deleted_count} categories deleted)`,
+        tone: 'ok',
+      });
       await fetchAll(year);
     } catch (e) { setMsg({ text: (e as Error).message, tone: 'err' }); }
     finally { setLoading(false); }
@@ -331,9 +356,6 @@ export default function AwardsTable({ initialYear }: Props) {
     setNewCatTags(''); setNewCatIconSvg('');
   }
 
-  // ============================================================================
-  // STYLES
-  // ============================================================================
   const card: React.CSSProperties = { background: 'var(--mtr-card)', border: '1px solid var(--mtr-border)', borderRadius: 'var(--mtr-radius)' };
   const innerBox: React.CSSProperties = { background: 'var(--mtr-inner)', border: '1px solid var(--mtr-border)', color: 'var(--mtr-text)' };
   const btnPrimary: React.CSSProperties = { background: 'var(--mtr-green)', color: '#fff', border: 0 };
@@ -410,9 +432,22 @@ export default function AwardsTable({ initialYear }: Props) {
       {/* GROUPED TABLES */}
       {grouped.map((g) => (
         <div key={g.groupName} className="mb-6 rounded-xl overflow-hidden" style={card}>
+          {/* GROUP HEADER — added Remove Group button on the right */}
           <div className="px-5 py-3 flex items-center gap-3" style={{ borderBottom: '1px solid var(--mtr-border)' }}>
             <h3 className="text-base font-semibold" style={{ color: 'var(--mtr-green)' }}>{g.groupName}</h3>
             <span className="text-xs" style={{ color: 'var(--mtr-muted)' }}>{g.rows.length} {g.rows.length === 1 ? 'award' : 'awards'}</span>
+
+            <div className="ml-auto">
+              <button
+                onClick={() => handleRemoveGroupFromYear(g.groupId, g.groupName, g.rows.length)}
+                className="px-3 py-1.5 rounded text-xs font-medium"
+                style={btnDanger}
+                disabled={loading || !g.groupId}
+                title={`Remove all categories of ${g.groupName} from ${year}`}
+              >
+                Remove Group from {year}
+              </button>
+            </div>
           </div>
 
           <table className="w-full text-sm">
