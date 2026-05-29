@@ -737,3 +737,59 @@ body:has(.aw-wrap) {
   .aw-step-desc { font-size: 13px; }
   .aw-step-content { padding-bottom: 28px; }
 }
+
+/* =====================================================
+   APPEND INI KE styles/awards.css (di paling bawah)
+   Class baru — ga ngubah class existing.
+   ===================================================== */
+
+/* Year tabs container */
+.aw-year-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+  padding: 6px;
+  border-radius: var(--aw-radius-md);
+  background: #0F1825;
+  border: 1px solid var(--aw-border);
+  width: fit-content;
+}
+
+.aw-year-tab {
+  padding: 10px 22px;
+  border-radius: var(--aw-radius-sm);
+  background: transparent;
+  border: 0;
+  color: var(--aw-muted);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  font-family: inherit;
+}
+
+.aw-year-tab:hover:not(.aw-year-tab-active) {
+  color: var(--aw-text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.aw-year-tab-active {
+  background: var(--aw-green);
+  color: #ffffff;
+}
+
+/* Responsive mobile */
+@media (max-width: 640px) {
+  .aw-year-tabs {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .aw-year-tabs::-webkit-scrollbar { display: none; }
+  .aw-year-tab {
+    padding: 8px 16px;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+}

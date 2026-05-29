@@ -36,8 +36,9 @@ export default async function AdminLayout({
         </div>
 
         <NavLink href="/admin">Dashboard</NavLink>
-        <NavLink href="/admin/ib-affiliates">IB Affiliates</NavLink>
         <NavLink href="/admin/brokers">Brokers</NavLink>
+        <NavLink href="/admin/ib-affiliates">IB Affiliates</NavLink>
+        <NavLink href="/admin/awards">Awards</NavLink>
         <NavLink href="/admin/boost">Vote Boost</NavLink>
         <NavLink href="/admin/reviews">Reviews</NavLink>
         <NavLink href="/admin/submissions">Submissions</NavLink>
